@@ -1,11 +1,5 @@
-/**
- * App Layout with Bottom Tabs
- * Main navigation for authenticated users
- */
-
 import { Tabs } from 'expo-router';
-import { Appbar } from 'react-native-paper';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons/';
 
 export default function AppLayout() {
   return (
@@ -20,6 +14,7 @@ export default function AppLayout() {
         name="home"
         options={{
           title: 'Home',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" size={size} color={color} />
           ),
@@ -29,8 +24,18 @@ export default function AppLayout() {
         name="topics"
         options={{
           title: 'Topics',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="book-open-variant" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="schedule"
+        options={{
+          title: 'Schedule',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="calendar" size={size} color={color} />
           ),
         }}
       />
@@ -66,13 +71,6 @@ export default function AppLayout() {
           href: null, // Hide from tabs
         }}
       />
-      <Tabs.Screen
-        name="schedule"
-        options={{
-          href: null, // Hide from tabs
-        }}
-      />
     </Tabs>
   );
 }
-
