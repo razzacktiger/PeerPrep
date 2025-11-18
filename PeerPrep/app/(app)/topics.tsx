@@ -106,7 +106,13 @@ export default function TopicsScreen() {
   const handlePracticeNow = async (topic: Topic) => {
     try {
       await AsyncStorage.setItem('selectedTopic', JSON.stringify(topic));
-      router.push('/(app)/queue');
+      router.push({
+        pathname: '/(app)/queue',
+        params: {
+          topicId: topic.id,
+          difficulty: topic.difficulty,
+        },
+      });
     } catch (error) {
       console.error('Error saving selected topic:', error);
     }
