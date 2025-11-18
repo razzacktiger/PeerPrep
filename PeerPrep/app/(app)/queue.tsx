@@ -10,7 +10,6 @@ import {
   Button,
   ProgressBar,
   Card,
-  ActivityIndicator,
 } from "react-native-paper";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as matchmakingApi from "../../lib/api/matchmaking";
