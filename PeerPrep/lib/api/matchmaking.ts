@@ -17,7 +17,7 @@ export async function findMatch(topicId: string): Promise<ApiResponse<Session>> 
   // Randomly decide if match is found (90% success rate for demo)
   if (Math.random() < 0.9) {
     // Get a random question from the topic
-    const questions = MOCK_QUESTIONS[topicId] || MOCK_QUESTIONS['1'];
+    const questions = (MOCK_QUESTIONS as Record<string, Question[]>)[topicId] || MOCK_QUESTIONS['1'];
     const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
 
     // Create mock session
