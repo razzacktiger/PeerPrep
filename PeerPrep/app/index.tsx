@@ -1,20 +1,18 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+/**
+ * Entry point - Redirects to auth or app based on login status
+ */
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Hello World!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import { Redirect } from 'expo-router';
+import { useAuthStore } from '../stores/authStore';
+
+export default function Index() {
+  const user = useAuthStore((state) => state.user);
+
+  // Simple redirect logic
+  // In production, you'd check for valid session/token
+  if (user) {
+    return <Redirect href="/(app)/home" />;
+  }
+
+  return <Redirect href="/(auth)/sign-in" />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
