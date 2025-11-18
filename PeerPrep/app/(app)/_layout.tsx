@@ -62,6 +62,8 @@ export default function AppLayout() {
       <Tabs.Screen
         name="queue"
         options={{
+          title: 'Queue',
+          headerShown: false,
           href: null, // Hide from tabs
         }}
       />
