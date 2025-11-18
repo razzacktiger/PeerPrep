@@ -70,6 +70,8 @@ export default function AppLayout() {
       <Tabs.Screen
         name="session"
         options={{
+          title: 'Session',
+          headerShown: false,
           href: null, // Hide from tabs
         }}
       />
