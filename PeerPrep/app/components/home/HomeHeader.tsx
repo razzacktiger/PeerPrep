@@ -13,15 +13,16 @@ interface HomeHeaderProps {
     icon: string;
     gradient: readonly [string, string];
   }>;
+  paddingTop: number;
 }
 
-export default function HomeHeader({ user, stats }: HomeHeaderProps) {
+export default function HomeHeader({ user, stats, paddingTop }: HomeHeaderProps) {
   return (
     <LinearGradient
       colors={["#9333ea", "#3b82f6", "#4f46e5"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.headerGradient}
+      style={[styles.headerGradient, { paddingTop }]}
     >
       <View style={styles.headerContent}>
         <View style={styles.headerTop}>

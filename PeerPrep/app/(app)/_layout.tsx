@@ -34,6 +34,7 @@ export default function AppLayout() {
         name="schedule"
         options={{
           title: 'Schedule',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="calendar" size={size} color={color} />
           ),

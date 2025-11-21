@@ -3,7 +3,6 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   headerGradient: {
     paddingHorizontal: 16,
-    paddingTop: 40,
     paddingBottom: 128,
     borderBottomLeftRadius: 48,
     borderBottomRightRadius: 48,

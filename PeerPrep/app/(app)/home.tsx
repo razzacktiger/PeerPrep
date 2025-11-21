@@ -75,9 +75,8 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <ScrollView 
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: insets.top }}
       >
-        <HomeHeader user={user} stats={stats} />
+        <HomeHeader user={user} stats={stats} paddingTop={insets.top + 32} />
 
         <View style={styles.mainContent}>
           <WeeklyThemeCard theme={weeklyTheme} />
