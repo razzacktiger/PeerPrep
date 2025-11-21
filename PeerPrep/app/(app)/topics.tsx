@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, FlatList } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
