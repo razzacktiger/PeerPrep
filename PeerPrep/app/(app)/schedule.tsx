@@ -1,336 +1,155 @@
-/**
- * Schedule Screen
- * Schedule future practice sessions
- */
-
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
-import {
-  Text,
-  Card,
-  Button,
-  TextInput,
-  Chip,
-  Menu,
-  Portal,
-  Dialog,
-} from 'react-native-paper';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { TOPICS } from '../../lib/constants';
-import * as matchmakingApi from '../../lib/api/matchmaking';
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, TouchableOpacity, Text, StatusBar } from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ScheduleHeader from "../components/schedule/ScheduleHeader";
+import DatePicker from "../components/schedule/DatePicker";
+import TimeSlotPicker from "../components/schedule/TimeSlotPicker";
+import SessionSummary from "../components/schedule/SessionSummary";
+import SuccessModal from "../components/schedule/SuccessModal";
+import { TOPICS } from "../../lib/constants";
+import styles from "../styles/scheduleStyles";
 
 export default function ScheduleScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  
-  const [selectedTopic, setSelectedTopic] = useState(params.topicId as string || TOPICS[0].id);
-  const [selectedDifficulty, setSelectedDifficulty] = useState(params.difficulty as string || 'Medium');
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [showTopicMenu, setShowTopicMenu] = useState(false);
-  const [showDifficultyMenu, setShowDifficultyMenu] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const insets = useSafeAreaInsets();
 
-  const topic = TOPICS.find((t) => t.id === selectedTopic) || TOPICS[0];
+  const [selectedTopic, setSelectedTopic] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [time, setTime] = useState("");
+  const [duration, setDuration] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleDateChange = (event: any, date?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
-    if (date) {
-      setSelectedDate(date);
+  const durations = ["30 minutes", "45 minutes", "60 minutes"];
+
+  useEffect(() => {
+    if (params.topicId) {
+      setSelectedTopic(params.topicId as string);
     }
-  };
-
-  const handleTimeChange = (event: any, time?: Date) => {
-    setShowTimePicker(Platform.OS === 'ios');
-    if (time) {
-      setSelectedTime(time);
+    if (params.difficulty) {
+      setDifficulty(params.difficulty as string);
     }
-  };
+  }, [params]);
 
-  const handleSchedule = async () => {
-    setIsSubmitting(true);
-
-    // Combine date and time
-    const scheduledDateTime = new Date(selectedDate);
-    scheduledDateTime.setHours(selectedTime.getHours());
-    scheduledDateTime.setMinutes(selectedTime.getMinutes());
-
-    const result = await matchmakingApi.scheduleSession(selectedTopic, scheduledDateTime);
-
-    setIsSubmitting(false);
-
-    if (result.data?.success) {
-      setShowConfirmDialog(true);
+  const handleSchedule = () => {
+    if (!selectedTopic || !difficulty) {
+      alert("Please select a topic and difficulty");
+      return;
     }
+    if (!time) {
+      alert("Please select a time");
+      return;
+    }
+    if (!duration) {
+      alert("Please select a duration");
+      return;
+    }
+
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      router.replace("/(app)/home");
+    }, 2000);
   };
 
-  const handleConfirmOk = () => {
-    setShowConfirmDialog(false);
-    router.back();
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  const formatTime = (time: Date) => {
-    return time.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const topicName = TOPICS.find((t) => t.id === selectedTopic)?.name || "";
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        {/* Header */}
-        <Card style={styles.headerCard}>
-          <Card.Content>
-            <Text variant="headlineSmall" style={styles.title}>
-              Schedule a Session
-            </Text>
-            <Text variant="bodyMedium" style={styles.subtitle}>
-              Plan ahead and practice at your convenience
-            </Text>
-          </Card.Content>
-        </Card>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+        <ScheduleHeader />
 
-        {/* Topic Selection */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.fieldLabel}>
-              Topic
-            </Text>
-            <Menu
-              visible={showTopicMenu}
-              onDismiss={() => setShowTopicMenu(false)}
-              anchor={
-                <Button
-                  mode="outlined"
-                  onPress={() => setShowTopicMenu(true)}
-                  style={styles.selectButton}
-                >
-                  {topic.icon} {topic.name}
-                </Button>
-              }
-            >
-              {TOPICS.map((t) => (
-                <Menu.Item
-                  key={t.id}
-                  onPress={() => {
-                    setSelectedTopic(t.id);
-                    setShowTopicMenu(false);
-                  }}
-                  title={`${t.icon} ${t.name}`}
-                />
-              ))}
-            </Menu>
-          </Card.Content>
-        </Card>
+        <View style={styles.content}>
+          {/* Session Details */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Session Details</Text>
 
-        {/* Difficulty Selection */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.fieldLabel}>
-              Difficulty
-            </Text>
-            <Menu
-              visible={showDifficultyMenu}
-              onDismiss={() => setShowDifficultyMenu(false)}
-              anchor={
-                <Button
-                  mode="outlined"
-                  onPress={() => setShowDifficultyMenu(true)}
-                  style={styles.selectButton}
-                >
-                  {selectedDifficulty}
-                </Button>
-              }
-            >
-              {topic.difficulty_levels.map((level) => (
-                <Menu.Item
-                  key={level}
-                  onPress={() => {
-                    setSelectedDifficulty(level);
-                    setShowDifficultyMenu(false);
-                  }}
-                  title={level}
-                />
-              ))}
-            </Menu>
-          </Card.Content>
-        </Card>
-
-        {/* Date Selection */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.fieldLabel}>
-              Date
-            </Text>
-            <Button
-              mode="outlined"
-              onPress={() => setShowDatePicker(true)}
-              style={styles.selectButton}
-              icon="calendar"
-            >
-              {formatDate(selectedDate)}
-            </Button>
-            {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="date"
-                display="default"
-                onChange={handleDateChange}
-                minimumDate={new Date()}
-              />
-            )}
-          </Card.Content>
-        </Card>
-
-        {/* Time Selection */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.fieldLabel}>
-              Time
-            </Text>
-            <Button
-              mode="outlined"
-              onPress={() => setShowTimePicker(true)}
-              style={styles.selectButton}
-              icon="clock"
-            >
-              {formatTime(selectedTime)}
-            </Button>
-            {showTimePicker && (
-              <DateTimePicker
-                value={selectedTime}
-                mode="time"
-                display="default"
-                onChange={handleTimeChange}
-              />
-            )}
-          </Card.Content>
-        </Card>
-
-        {/* Summary */}
-        <Card style={styles.summaryCard}>
-          <Card.Content>
-            <Text variant="titleLarge" style={styles.summaryTitle}>
-              Summary
-            </Text>
-            <View style={styles.summaryRow}>
-              <Text variant="bodyMedium" style={styles.summaryLabel}>Topic:</Text>
-              <Chip mode="outlined">{topic.icon} {topic.name}</Chip>
+            <Text style={styles.fieldLabel}>Topic</Text>
+            <View style={styles.picker}>
+              <Picker
+                selectedValue={selectedTopic}
+                onValueChange={setSelectedTopic}
+                style={{ height: 48 }}
+              >
+                <Picker.Item label="Select a topic" value="" />
+                {TOPICS.map((topic) => (
+                  <Picker.Item key={topic.id} label={`${topic.icon} ${topic.name}`} value={topic.id} />
+                ))}
+              </Picker>
             </View>
-            <View style={styles.summaryRow}>
-              <Text variant="bodyMedium" style={styles.summaryLabel}>Difficulty:</Text>
-              <Chip mode="outlined">{selectedDifficulty}</Chip>
-            </View>
-            <View style={styles.summaryRow}>
-              <Text variant="bodyMedium" style={styles.summaryLabel}>When:</Text>
-              <Text variant="bodyMedium">
-                {formatDate(selectedDate)} at {formatTime(selectedTime)}
-              </Text>
-            </View>
-          </Card.Content>
-        </Card>
 
-        {/* Schedule Button */}
-        <Button
-          mode="contained"
-          onPress={handleSchedule}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          style={styles.scheduleButton}
-          icon="calendar-check"
-        >
-          Schedule Session
-        </Button>
-      </View>
+            <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Difficulty Level</Text>
+            <View style={styles.picker}>
+              <Picker
+                selectedValue={difficulty}
+                onValueChange={setDifficulty}
+                style={{ height: 48 }}
+              >
+                <Picker.Item label="Select difficulty" value="" />
+                <Picker.Item label="Easy" value="Easy" />
+                <Picker.Item label="Medium" value="Medium" />
+                <Picker.Item label="Hard" value="Hard" />
+              </Picker>
+            </View>
 
-      {/* Confirmation Dialog */}
-      <Portal>
-        <Dialog visible={showConfirmDialog} onDismiss={handleConfirmOk}>
-          <Dialog.Icon icon="check-circle" size={64} color="#4caf50" />
-          <Dialog.Title style={styles.dialogTitle}>Session Scheduled!</Dialog.Title>
-          <Dialog.Content>
-            <Text variant="bodyMedium" style={styles.dialogText}>
-              Your session has been scheduled successfully. We'll notify you when a partner joins.
-            </Text>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={handleConfirmOk}>OK</Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-    </ScrollView>
+            <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Duration</Text>
+            <View style={styles.picker}>
+              <Picker
+                selectedValue={duration}
+                onValueChange={setDuration}
+                style={{ height: 48 }}
+              >
+                <Picker.Item label="Select duration" value="" />
+                {durations.map((dur) => (
+                  <Picker.Item key={dur} label={dur} value={dur} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+
+          {/* Date Selection */}
+          <DatePicker selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+
+          {/* Time Selection */}
+          <TimeSlotPicker selectedTime={time} onTimeSelect={setTime} />
+
+          {/* Summary */}
+          <SessionSummary
+            topic={topicName}
+            difficulty={difficulty}
+            date={selectedDate}
+            time={time}
+            duration={duration}
+          />
+
+          {/* Schedule Button */}
+          <TouchableOpacity
+            onPress={handleSchedule}
+            activeOpacity={0.8}
+            style={{ marginTop: 8 }}
+          >
+            <LinearGradient
+              colors={["#9333EA", "#2563EB"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.scheduleButton}
+            >
+              <View style={styles.buttonContent}>
+                <MaterialCommunityIcons name="calendar-check" size={20} color="#FFFFFF" />
+                <Text style={styles.scheduleButtonText}>Schedule Session</Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+
+      <SuccessModal visible={showSuccess} />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  content: {
-    padding: 16,
-  },
-  headerCard: {
-    backgroundColor: 'white',
-    marginBottom: 16,
-  },
-  title: {
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: '#666',
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 12,
-  },
-  fieldLabel: {
-    marginBottom: 12,
-    fontWeight: 'bold',
-  },
-  selectButton: {
-    justifyContent: 'flex-start',
-  },
-  summaryCard: {
-    backgroundColor: '#e3f2fd',
-    marginBottom: 24,
-  },
-  summaryTitle: {
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  summaryLabel: {
-    fontWeight: '600',
-  },
-  scheduleButton: {
-    paddingVertical: 8,
-  },
-  dialogTitle: {
-    textAlign: 'center',
-  },
-  dialogText: {
-    textAlign: 'center',
-  },
-});
-
