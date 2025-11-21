@@ -16,7 +16,7 @@ export default function DatePicker({ selectedDate, onDateSelect }: DatePickerPro
     if (!selectedDate) {
       onDateSelect(today);
     }
-  }, []);
+  }, [selectedDate, onDateSelect, today]);
 
   return (
     <View style={styles.container}>
