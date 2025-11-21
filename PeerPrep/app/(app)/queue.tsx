@@ -1,302 +1,164 @@
-/**
- * Queue Screen
- * Matchmaking queue with animated progress
- */
-
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Animated } from "react-native";
-import {
-  Text,
-  Button,
-  ProgressBar,
-  Card,
-} from "react-native-paper";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import * as matchmakingApi from "../../lib/api/matchmaking";
+import React from "react";
+import { View } from "react-native";
+import { Text, Button, Card } from "react-native-paper";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TOPICS } from "../../lib/constants";
-import { useSessionStore } from "../../stores/sessionStore";
+import { useQueueAnimations } from "../../lib/hooks/useQueueAnimations";
+import { useQueueProgress } from "../../lib/hooks/useQueueProgress";
+import { useMatchmaking } from "../../lib/hooks/useMatchmaking";
+import { getDifficultyColor } from "../../lib/utils/difficultyColors";
+import QueueStatusIcon from "../components/queue/QueueStatusIcon";
+import QueueTopicInfo from "../components/queue/QueueTopicInfo";
+import QueueProgress from "../components/queue/QueueProgress";
+import QueueTips from "../components/queue/QueueTips";
+import styles from "../styles/queueStyles";
 
 export default function QueueScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { topicId, difficulty } = params;
 
-  const setCurrentSession = useSessionStore((state) => state.setCurrentSession);
-
-  const [isSearching, setIsSearching] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [dots, setDots] = useState("");
-  const [error, setError] = useState("");
-
   // Find topic info
   const topic = TOPICS.find((t) => t.id === topicId);
 
-  // Animated pulse effect
-  const pulseAnim = React.useRef(new Animated.Value(1)).current;
+  // Custom hooks for logic separation
+  const { status, error, handleCancel, handleRetry } =
+    useMatchmaking(topicId);
+  const { progress, estimatedTime, resetProgress } = useQueueProgress(status);
+  const { pingAnim1, pingAnim2, bounceAnim } = useQueueAnimations(status);
 
-  useEffect(() => {
-    // Pulse animation
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.2,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    pulse.start();
+  // Get difficulty colors
+  const difficultyColors = getDifficultyColor(difficulty as string);
 
-    return () => pulse.stop();
-  }, []);
-
-  // Animated dots for "Searching..."
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Progress bar animation
-  useEffect(() => {
-    if (!isSearching) return;
-
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 0.95) return prev; // Stop at 95%
-        return prev + 0.05;
-      });
-    }, 200);
-
-    return () => clearInterval(interval);
-  }, [isSearching]);
-
-  // Start matchmaking
-  useEffect(() => {
-    let isCancelled = false;
-
-    const findMatch = async () => {
-      try {
-        const result = await matchmakingApi.findMatch(topicId as string);
-
-        if (isCancelled) return;
-
-        if (result.error) {
-          setError(result.error);
-          setIsSearching(false);
-          return;
-        }
-
-        if (result.data) {
-          // Store session in global state
-          setCurrentSession(result.data);
-
-          // Navigate to session room
-          setIsSearching(false);
-          router.replace("/(app)/session");
-        }
-      } catch (err) {
-        if (!isCancelled) {
-          setError("Failed to find a match. Please try again.");
-          setIsSearching(false);
-        }
-      }
-    };
-
-    findMatch();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [topicId]);
-
-  const handleCancel = async () => {
-    await matchmakingApi.cancelMatch();
-    router.back();
+  const onRetry = () => {
+    resetProgress();
+    handleRetry(difficulty);
   };
 
-  const handleRetry = () => {
-    setError("");
-    setIsSearching(true);
-    setProgress(0);
-    router.replace({
-      pathname: "/(app)/queue",
-      params: { topicId, difficulty },
-    });
-  };
-
-  if (error) {
+  if (status === "error") {
     return (
-      <View style={styles.container}>
-        <Card style={styles.errorCard}>
-          <Card.Content style={styles.errorContent}>
-            <Text variant="headlineSmall" style={styles.errorTitle}>
-              ⚠️ No Match Found
-            </Text>
-            <Text variant="bodyMedium" style={styles.errorMessage}>
-              {error}
-            </Text>
-            <View style={styles.buttonContainer}>
-              <Button
-                mode="contained"
-                onPress={handleRetry}
-                style={styles.retryButton}
-              >
-                Try Again
-              </Button>
-              <Button mode="outlined" onPress={() => router.back()}>
-                Back to Topics
-              </Button>
-            </View>
-          </Card.Content>
-        </Card>
-      </View>
+      <LinearGradient
+        colors={["#7C3AED", "#3B82F6", "#4F46E5"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.container}
+      >
+        <View style={styles.content}>
+          <Card style={styles.mainCard}>
+            <Card.Content style={styles.cardContent}>
+              <View style={styles.errorIconContainer}>
+                <MaterialCommunityIcons
+                  name="alert-circle"
+                  size={64}
+                  color="#EF4444"
+                />
+              </View>
+              <Text style={styles.errorTitle}>No Match Found</Text>
+              <Text style={styles.errorMessage}>{error}</Text>
+
+              <View style={styles.buttonContainer}>
+                <Button
+                  mode="contained"
+                  onPress={onRetry}
+                  style={styles.retryButton}
+                  labelStyle={styles.retryButtonLabel}
+                  buttonColor="#2563EB"
+                >
+                  Try Again
+                </Button>
+                <Button
+                  mode="outlined"
+                  onPress={() => router.back()}
+                  style={styles.backButton}
+                  labelStyle={styles.backButtonLabel}
+                  textColor="#6B7280"
+                >
+                  Back to Topics
+                </Button>
+              </View>
+            </Card.Content>
+          </Card>
+        </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={["#7C3AED", "#3B82F6", "#4F46E5"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
       <View style={styles.content}>
-        {/* Topic Info */}
-        <Card style={styles.topicCard}>
-          <Card.Content style={styles.topicContent}>
-            <Text style={styles.topicIcon}>{topic?.icon}</Text>
-            <Text variant="headlineSmall" style={styles.topicName}>
-              {topic?.name}
-            </Text>
-            <Text variant="bodyMedium" style={styles.difficulty}>
-              Difficulty: {difficulty}
-            </Text>
+        <Card style={styles.mainCard}>
+          <Card.Content style={styles.cardContent}>
+            {/* Status Icon */}
+            <QueueStatusIcon
+              status={status}
+              pingAnim1={pingAnim1}
+              pingAnim2={pingAnim2}
+              bounceAnim={bounceAnim}
+            />
+
+            {/* Status Text */}
+            <View style={styles.statusSection}>
+              <Text style={styles.statusTitle}>
+                {status === "searching" && "Finding Your Match..."}
+                {status === "found" && "Match Found! 🎉"}
+              </Text>
+              <Text style={styles.statusSubtitle}>
+                {status === "searching" && "Searching for someone at your level"}
+                {status === "found" && "Preparing your session..."}
+              </Text>
+            </View>
+
+            {/* Topic Info */}
+            {topic && (
+              <QueueTopicInfo
+                topicName={topic.name}
+                difficulty={difficulty as string}
+                difficultyColors={difficultyColors}
+              />
+            )}
+
+            {/* Progress/Timer */}
+            {status === "searching" && (
+              <QueueProgress
+                status="searching"
+                estimatedTime={estimatedTime}
+                progress={progress}
+              />
+            )}
+
+            {status === "found" && (
+              <QueueProgress status="found" progress={1} />
+            )}
+
+            {/* Cancel Button */}
+            {status === "searching" && (
+              <Button
+                mode="outlined"
+                onPress={handleCancel}
+                style={styles.cancelButton}
+                labelStyle={styles.cancelButtonLabel}
+                icon={() => (
+                  <MaterialCommunityIcons name="close" size={20} color="#6B7280" />
+                )}
+                textColor="#374151"
+              >
+                Cancel Search
+              </Button>
+            )}
           </Card.Content>
         </Card>
 
-        {/* Animated Search Indicator */}
-        <Animated.View
-          style={[
-            styles.searchIndicator,
-            { transform: [{ scale: pulseAnim }] },
-          ]}
-        >
-          <Text style={styles.searchIcon}>🔍</Text>
-        </Animated.View>
-
-        {/* Status Text */}
-        <View style={styles.statusContainer}>
-          <Text variant="headlineMedium" style={styles.statusText}>
-            Searching for a partner{dots}
-          </Text>
-          <Text variant="bodyMedium" style={styles.statusSubtext}>
-            This usually takes 2-4 seconds
-          </Text>
-        </View>
-
-        {/* Progress Bar */}
-        <ProgressBar
-          progress={progress}
-          color="#6200ee"
-          style={styles.progressBar}
-        />
-
-        {/* Cancel Button */}
-        <Button
-          mode="outlined"
-          onPress={handleCancel}
-          style={styles.cancelButton}
-        >
-          Cancel Search
-        </Button>
+        {/* Tips */}
+        {status === "searching" && <QueueTips />}
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-  },
-  topicCard: {
-    width: "100%",
-    backgroundColor: "white",
-    marginBottom: 48,
-  },
-  topicContent: {
-    alignItems: "center",
-    paddingVertical: 20,
-  },
-  topicIcon: {
-    fontSize: 64,
-    marginBottom: 12,
-  },
-  topicName: {
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  difficulty: {
-    color: "#666",
-  },
-  searchIndicator: {
-    marginBottom: 32,
-  },
-  searchIcon: {
-    fontSize: 80,
-  },
-  statusContainer: {
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  statusText: {
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  statusSubtext: {
-    color: "#666",
-  },
-  progressBar: {
-    width: "100%",
-    height: 8,
-    borderRadius: 4,
-    marginBottom: 32,
-  },
-  cancelButton: {
-    paddingHorizontal: 24,
-  },
-  errorCard: {
-    margin: 24,
-    backgroundColor: "white",
-  },
-  errorContent: {
-    alignItems: "center",
-    paddingVertical: 24,
-  },
-  errorTitle: {
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  errorMessage: {
-    color: "#666",
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  buttonContainer: {
-    width: "100%",
-    gap: 12,
-  },
-  retryButton: {
-    paddingVertical: 6,
-  },
-});

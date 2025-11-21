@@ -1,281 +1,181 @@
-/**
- * Topics Screen
- * Browse and select practice topics
- */
-
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, FlatList } from 'react-native';
-import {
-  Text,
-  Card,
-  Chip,
-  Button,
-  Searchbar,
-  FAB,
-  Portal,
-  Modal,
-  RadioButton,
-} from 'react-native-paper';
+import { View, ScrollView } from 'react-native';
+import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import { TOPICS } from '../../lib/constants';
+import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import TopicCard, { Topic } from '../components/topics/TopicCard';
+import TopicSearch from '../components/topics/TopicSearch';
+import topicsStyles from '../styles/topicsStyles';
 
 export default function TopicsScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('Medium');
-  const [showModal, setShowModal] = useState(false);
+  const insets = useSafeAreaInsets();
 
-  // Filter topics based on search
-  const filteredTopics = TOPICS.filter((topic) =>
-    topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    topic.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const topics: Topic[] = [
+    {
+      id: '1',
+      name: 'Arrays',
+      icon: 'view-grid',
+      difficulty: 'Easy',
+      questions: 45,
+      description: 'Master array manipulation',
+      gradient: ['#3b82f6', '#06b6d4'] as const,
+    },
+    {
+      id: '2',
+      name: 'Strings',
+      icon: 'code-tags',
+      difficulty: 'Easy',
+      questions: 38,
+      description: 'String processing',
+      gradient: ['#a855f7', '#ec4899'] as const,
+    },
+    {
+      id: '3',
+      name: 'Binary Trees',
+      icon: 'source-branch',
+      difficulty: 'Medium',
+      questions: 52,
+      description: 'Tree traversal',
+      gradient: ['#22c55e', '#10b981'] as const,
+    },
+    {
+      id: '4',
+      name: 'Graphs',
+      icon: 'network',
+      difficulty: 'Hard',
+      questions: 41,
+      description: 'Graph algorithms',
+      gradient: ['#ef4444', '#f97316'] as const,
+    },
+    {
+      id: '5',
+      name: 'Dynamic Programming',
+      icon: 'flash',
+      difficulty: 'Hard',
+      questions: 35,
+      description: 'Optimization problems',
+      gradient: ['#eab308', '#f97316'] as const,
+    },
+    {
+      id: '6',
+      name: 'Hash Tables',
+      icon: 'pound',
+      difficulty: 'Medium',
+      questions: 29,
+      description: 'Hashing optimization',
+      gradient: ['#6366f1', '#a855f7'] as const,
+    },
+    {
+      id: '7',
+      name: 'Linked Lists',
+      icon: 'view-list',
+      difficulty: 'Easy',
+      questions: 31,
+      description: 'List manipulation',
+      gradient: ['#14b8a6', '#06b6d4'] as const,
+    },
+    {
+      id: '8',
+      name: 'Binary Search',
+      icon: 'file-search',
+      difficulty: 'Medium',
+      questions: 24,
+      description: 'Search algorithms',
+      gradient: ['#8b5cf6', '#a855f7'] as const,
+    },
+    {
+      id: '9',
+      name: 'Sorting',
+      icon: 'database',
+      difficulty: 'Medium',
+      questions: 27,
+      description: 'Sorting algorithms',
+      gradient: ['#ec4899', '#f43f5e'] as const,
+    },
+  ];
+
+  const filteredTopics = topics.filter((topic) =>
+    topic.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleTopicPress = (topicId: string) => {
-    setSelectedTopic(topicId);
-    setShowModal(true);
+  const handlePracticeNow = async (topic: Topic) => {
+    try {
+      await AsyncStorage.setItem('selectedTopic', JSON.stringify(topic));
+      router.push({
+        pathname: '/(app)/queue',
+        params: {
+          topicId: topic.id,
+          difficulty: topic.difficulty,
+        },
+      });
+    } catch (error) {
+      console.error('Error saving selected topic:', error);
+    }
   };
 
-  const handlePracticeNow = () => {
-    if (!selectedTopic) return;
-    setShowModal(false);
-    
-    // Navigate to queue with selected topic
-    router.push({
-      pathname: '/(app)/queue',
-      params: { topicId: selectedTopic, difficulty: selectedDifficulty },
-    });
+  const handleSchedule = async (topic: Topic) => {
+    try {
+      await AsyncStorage.setItem('selectedTopic', JSON.stringify(topic));
+      router.push('/(app)/schedule');
+    } catch (error) {
+      console.error('Error saving selected topic:', error);
+    }
   };
 
-  const handleScheduleSession = () => {
-    if (!selectedTopic) return;
-    setShowModal(false);
-    
-    // Navigate to schedule with selected topic
-    router.push({
-      pathname: '/(app)/schedule',
-      params: { topicId: selectedTopic, difficulty: selectedDifficulty },
-    });
-  };
-
-  const selectedTopicData = TOPICS.find((t) => t.id === selectedTopic);
+  const renderEmptyState = () => (
+    <View style={topicsStyles.emptyContainer}>
+      <View style={topicsStyles.emptyIconContainer}>
+        <MaterialCommunityIcons name="magnify" size={32} color="#9CA3AF" />
+      </View>
+      <Text style={topicsStyles.emptyText}>
+        No topics found matching "{searchQuery}"
+      </Text>
+    </View>
+  );
 
   return (
-    <View style={styles.container}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Searchbar
-          placeholder="Search topics..."
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          style={styles.searchbar}
-        />
-      </View>
+    <View style={topicsStyles.container}>
+      {/* Header */}
+      <LinearGradient
+        colors={['#9333ea', '#3b82f6', '#4f46e5']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[topicsStyles.headerGradient, { paddingTop: insets.top + 32 }]}
+      >
+        <View style={topicsStyles.headerContent}>
+          <Text style={topicsStyles.title}>Practice Topics</Text>
+          <Text style={topicsStyles.subtitle}>
+            Choose a topic to start practicing
+          </Text>
 
-      {/* Topics Grid */}
-      <FlatList
-        data={filteredTopics}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.gridContainer}
-        columnWrapperStyle={styles.row}
-        renderItem={({ item }) => (
-          <Card
-            style={styles.topicCard}
-            onPress={() => handleTopicPress(item.id)}
-          >
-            <Card.Content style={styles.cardContent}>
-              <Text style={styles.icon}>{item.icon}</Text>
-              <Text variant="titleMedium" style={styles.topicName}>
-                {item.name}
-              </Text>
-              <Text variant="bodySmall" style={styles.topicDescription} numberOfLines={2}>
-                {item.description}
-              </Text>
-              <View style={styles.chipContainer}>
-                {item.difficulty_levels.map((level) => (
-                  <Chip
-                    key={level}
-                    mode="outlined"
-                    compact
-                    style={styles.difficultyChip}
-                    textStyle={styles.chipText}
-                  >
-                    {level}
-                  </Chip>
-                ))}
-              </View>
-            </Card.Content>
-          </Card>
+          {/* Search Bar */}
+          <TopicSearch
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+        </View>
+      </LinearGradient>
+
+      {/* Topics List */}
+      <ScrollView style={topicsStyles.contentContainer}>
+        {filteredTopics.length > 0 ? (
+          filteredTopics.map((topic) => (
+            <TopicCard
+              key={topic.id}
+              topic={topic}
+              onPracticeNow={handlePracticeNow}
+              onSchedule={handleSchedule}
+            />
+          ))
+        ) : (
+          renderEmptyState()
         )}
-      />
-
-      {/* Topic Selection Modal */}
-      <Portal>
-        <Modal
-          visible={showModal}
-          onDismiss={() => setShowModal(false)}
-          contentContainerStyle={styles.modalContainer}
-        >
-          <View style={styles.modalContent}>
-            <Text variant="headlineSmall" style={styles.modalTitle}>
-              {selectedTopicData?.icon} {selectedTopicData?.name}
-            </Text>
-            <Text variant="bodyMedium" style={styles.modalDescription}>
-              {selectedTopicData?.description}
-            </Text>
-
-            {/* Difficulty Selection */}
-            <View style={styles.section}>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
-                Select Difficulty
-              </Text>
-              <RadioButton.Group
-                onValueChange={setSelectedDifficulty}
-                value={selectedDifficulty}
-              >
-                {selectedTopicData?.difficulty_levels.map((level) => (
-                  <View key={level} style={styles.radioItem}>
-                    <RadioButton value={level} />
-                    <Text variant="bodyLarge">{level}</Text>
-                  </View>
-                ))}
-              </RadioButton.Group>
-            </View>
-
-            {/* Action Buttons */}
-            <View style={styles.buttonContainer}>
-              <Button
-                mode="contained"
-                onPress={handlePracticeNow}
-                style={styles.primaryButton}
-                icon="play"
-              >
-                Practice Now
-              </Button>
-              <Button
-                mode="outlined"
-                onPress={handleScheduleSession}
-                style={styles.secondaryButton}
-                icon="calendar"
-              >
-                Schedule Session
-              </Button>
-              <Button
-                mode="text"
-                onPress={() => setShowModal(false)}
-                style={styles.cancelButton}
-              >
-                Cancel
-              </Button>
-            </View>
-          </View>
-        </Modal>
-      </Portal>
+      </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  searchContainer: {
-    padding: 16,
-    backgroundColor: 'white',
-    elevation: 2,
-  },
-  searchbar: {
-    elevation: 0,
-    backgroundColor: '#f5f5f5',
-  },
-  gridContainer: {
-    padding: 8,
-  },
-  row: {
-    justifyContent: 'space-between',
-  },
-  topicCard: {
-    flex: 1,
-    margin: 8,
-    backgroundColor: 'white',
-    minHeight: 180,
-  },
-  cardContent: {
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
-  icon: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  topicName: {
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  topicDescription: {
-    textAlign: 'center',
-    color: '#666',
-    marginBottom: 12,
-  },
-  chipContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  difficultyChip: {
-    height: 24,
-    marginHorizontal: 2,
-  },
-  chipText: {
-    fontSize: 10,
-  },
-  modalContainer: {
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 24,
-  },
-  modalTitle: {
-    fontWeight: 'bold',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  modalDescription: {
-    color: '#666',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  radioItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  buttonContainer: {
-    gap: 12,
-  },
-  primaryButton: {
-    paddingVertical: 6,
-  },
-  secondaryButton: {
-    paddingVertical: 6,
-  },
-  cancelButton: {
-    marginTop: 4,
-  },
-});
-
