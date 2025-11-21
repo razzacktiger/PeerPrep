@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, useWindowDimensions, StatusBar, Platform } from "react-native";
+import { View, ScrollView, useWindowDimensions, StatusBar } from "react-native";
 import { Text, Button } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
