@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { GRADIENTS } from "../../../lib/constants/colors";
@@ -24,6 +24,8 @@ export default function ProfileSection({
   onBioChange,
   onSave,
 }: ProfileSectionProps) {
+  const [showBioModal, setShowBioModal] = useState(false);
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile Information</Text>
@@ -70,16 +72,17 @@ export default function ProfileSection({
       {/* Bio */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Bio</Text>
-        <TextInput
-          value={bio}
-          onChangeText={onBioChange}
-          placeholder="Tell us about yourself..."
-          placeholderTextColor="#9CA3AF"
-          multiline
-          numberOfLines={4}
-          textAlignVertical="top"
-          style={[styles.input, styles.bioInput]}
-        />
+        <TouchableOpacity onPress={() => setShowBioModal(true)} activeOpacity={1}>
+          <View style={[styles.input, styles.bioInput]}>
+            <Text 
+              style={styles.bioText}
+              numberOfLines={3}
+              ellipsizeMode="tail"
+            >
+              {bio || "Tell us about yourself..."}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
 
         {/* Save Button */}
@@ -98,6 +101,53 @@ export default function ProfileSection({
           </LinearGradient>
         </TouchableOpacity>
       </View>
+
+      {/* Bio Edit Modal */}
+      <Modal
+        visible={showBioModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowBioModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Bio</Text>
+              <TouchableOpacity onPress={() => setShowBioModal(false)}>
+                <MaterialCommunityIcons name="close" size={24} color="#475569" />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.modalScrollView}>
+              <TextInput
+                value={bio}
+                onChangeText={onBioChange}
+                placeholder="Tell us about yourself..."
+                placeholderTextColor="#9CA3AF"
+                multiline
+                autoFocus
+                textAlignVertical="top"
+                style={styles.modalTextInput}
+              />
+            </ScrollView>
+            
+            <TouchableOpacity
+              onPress={() => setShowBioModal(false)}
+              activeOpacity={0.8}
+              style={styles.modalButton}
+            >
+              <LinearGradient
+                colors={GRADIENTS.PRIMARY}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.modalButtonGradient}
+              >
+                <Text style={styles.modalButtonText}>Done</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
