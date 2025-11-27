@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { GRADIENTS } from "../../../lib/constants/colors";
 import styles from "../../styles/settings/SettingsHeaderStyles";
 
 interface SettingsHeaderProps {
@@ -11,7 +12,7 @@ interface SettingsHeaderProps {
 export default function SettingsHeader({ paddingTop }: SettingsHeaderProps) {
   return (
     <LinearGradient
-      colors={["#8B5CF6", "#6366F1"]}
+      colors={GRADIENTS.PRIMARY}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
       style={[styles.container, { paddingTop }]}
