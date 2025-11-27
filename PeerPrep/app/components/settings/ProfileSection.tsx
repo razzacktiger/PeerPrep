@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
+import React from "react";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { GRADIENTS } from "../../../lib/constants/colors";
 import styles from "../../styles/settings/ProfileSectionStyles";
 
 interface ProfileSectionProps {
@@ -88,7 +89,7 @@ export default function ProfileSection({
           style={styles.saveButton}
         >
           <LinearGradient
-            colors={["#8B5CF6", "#6366F1"]}
+            colors={GRADIENTS.PRIMARY}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.saveButtonGradient}
