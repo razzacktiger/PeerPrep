@@ -24,13 +24,6 @@ const styles = StyleSheet.create({
   avatarContainer: {
     position: "relative",
   },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    borderWidth: 4,
-    borderColor: "rgba(255, 255, 255, 0.3)",
-  },
   onlineIndicator: {
     position: "absolute",
     bottom: -4,

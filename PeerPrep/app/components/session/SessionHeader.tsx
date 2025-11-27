@@ -31,7 +31,13 @@ export default function SessionHeader({
         {/* Top Row - Partner Info & Timer */}
         <View style={styles.topRow}>
           <View style={styles.partnerInfo}>
-            <Image source={{ uri: partnerAvatar }} style={styles.avatar} />
+            {partnerAvatar ? (
+              <Image source={{ uri: partnerAvatar }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <MaterialCommunityIcons name="account-circle" size={48} color="#E5E7EB" />
+              </View>
+            )}
             <View style={styles.partnerDetails}>
               <View style={styles.partnerNameRow}>
                 <Text style={styles.partnerName}>{partnerName}</Text>

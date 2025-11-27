@@ -22,7 +22,7 @@ export default function FeedbackScreen() {
 
   const partner = {
     name: currentSession?.partner_name || "Partner",
-    avatar: currentSession?.partner_avatar,
+    avatar: currentSession?.partner_avatar || null,
   };
 
   const toggleTag = (tagId: string) => {

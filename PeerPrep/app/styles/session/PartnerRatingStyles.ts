@@ -36,6 +36,14 @@ export default StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
+  avatarPlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F3F4F6",
+  },
   partnerDetails: {
     flex: 1,
   },
