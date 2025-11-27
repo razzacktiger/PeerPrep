@@ -1,9 +1,5 @@
 import React from "react";
-<<<<<<< HEAD
 import { View } from "react-native";
-=======
-import { View, Image } from "react-native";
->>>>>>> d74816b5d2ccaa39c475a9de81709211fcedd12e
 import { Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
