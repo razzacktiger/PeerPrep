@@ -22,7 +22,7 @@ export default function FeedbackScreen() {
 
   const partner = {
     name: currentSession?.partner_name || "Partner",
-    avatar: currentSession?.partner_avatar || require("../../../assets/default-pic.jpg"),
+    avatar: currentSession?.partner_avatar,
   };
 
   const toggleTag = (tagId: string) => {

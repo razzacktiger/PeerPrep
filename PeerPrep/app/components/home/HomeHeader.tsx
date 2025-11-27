@@ -1,6 +1,11 @@
 import React from "react";
+<<<<<<< Updated upstream
 import { View, TouchableOpacity, Image } from "react-native";
+=======
+import { View } from "react-native";
+>>>>>>> Stashed changes
 import { Text } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { User } from "../../../lib/types";
 import styles from "../../styles/home/HomeHeaderStyles";
@@ -28,10 +33,7 @@ export default function HomeHeader({ user, stats, paddingTop }: HomeHeaderProps)
         <View style={styles.headerTop}>
           <View style={styles.userInfo}>
             <View style={styles.avatarContainer}>
-              <Image
-                source={require("../../../assets/default-pic.jpg")}
-                style={styles.avatar}
-              />
+              <MaterialCommunityIcons name="account-circle" size={48} color="#FFFFFF" />
               <View style={styles.onlineIndicator} />
             </View>
             <View>
