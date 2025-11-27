@@ -1,9 +1,5 @@
 import React from "react";
-<<<<<<< Updated upstream
-import { View, TouchableOpacity, Image } from "react-native";
-=======
 import { View } from "react-native";
->>>>>>> Stashed changes
 import { Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
