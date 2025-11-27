@@ -75,7 +75,6 @@ export default function ScheduleScreen() {
               <Picker
                 selectedValue={selectedTopic}
                 onValueChange={setSelectedTopic}
-                style={{ height: 48 }}
               >
                 <Picker.Item label="Select a topic" value="" />
                 {TOPICS.map((topic) => (
@@ -89,7 +88,6 @@ export default function ScheduleScreen() {
               <Picker
                 selectedValue={difficulty}
                 onValueChange={setDifficulty}
-                style={{ height: 48 }}
               >
                 <Picker.Item label="Select difficulty" value="" />
                 <Picker.Item label="Easy" value="Easy" />
@@ -103,7 +101,6 @@ export default function ScheduleScreen() {
               <Picker
                 selectedValue={duration}
                 onValueChange={setDuration}
-                style={{ height: 48 }}
               >
                 <Picker.Item label="Select duration" value="" />
                 {durations.map((dur) => (
