@@ -4,22 +4,27 @@ import * as matchmakingApi from "../api/matchmaking";
 import { useSessionStore } from "../../stores/sessionStore";
 
 /**
- * Custom hook for managing matchmaking logic
- * Handles finding matches, error states, and navigation
+ * Custom hook for real-time matchmaking
+ * Handles queue joining, polling for matches, and navigation
  */
-export const useMatchmaking = (topicId: string | string[] | undefined) => {
+export const useMatchmaking = (
+  topicId: string | string[] | undefined,
+  difficulty: string | string[] | undefined
+) => {
   const router = useRouter();
   const setCurrentSession = useSessionStore((state) => state.setCurrentSession);
 
   const [status, setStatus] = useState<"searching" | "found" | "error">(
     "searching"
   );
+  const [queuePosition, setQueuePosition] = useState<number>(1);
+  const [estimatedWaitTime, setEstimatedWaitTime] = useState<number>(60);
   const [error, setError] = useState("");
-  
+
   // Use refs to avoid including router and setCurrentSession in dependencies
   const routerRef = useRef(router);
   const setCurrentSessionRef = useRef(setCurrentSession);
-  
+
   // Keep refs updated
   useEffect(() => {
     routerRef.current = router;
@@ -28,89 +33,159 @@ export const useMatchmaking = (topicId: string | string[] | undefined) => {
 
   // Start matchmaking
   useEffect(() => {
-    if (!topicId) {
+    console.log("🔵 useMatchmaking: Effect triggered", { topicId, difficulty });
+
+    if (!topicId || !difficulty) {
+      console.log("⚠️ useMatchmaking: Missing topicId or difficulty");
       return;
     }
 
     let isCancelled = false;
-    let timeoutId: NodeJS.Timeout;
+    let pollInterval: NodeJS.Timeout;
 
-    const findMatch = async () => {
+    const startMatchmaking = async () => {
       try {
-        // Set a timeout for matchmaking (30 seconds)
-        timeoutId = setTimeout(() => {
-          if (!isCancelled) {
-            setError("Matchmaking is taking longer than expected. Please try again.");
-            setStatus("error");
-          }
-        }, 30000);
+        console.log("🟢 Starting matchmaking...", { topicId, difficulty });
 
-        const result = await matchmakingApi.findMatch(topicId as string);
+        // Join the queue
+        const joinResult = await matchmakingApi.joinQueue(
+          topicId as string,
+          difficulty as string
+        );
 
-        // Clear timeout if we get a result
-        clearTimeout(timeoutId);
+        console.log("📥 Join queue result:", joinResult);
 
-        if (isCancelled) {
-          return;
-        }
+        if (isCancelled) return;
 
-        if (result.error) {
-          setError(result.error);
+        if (joinResult.error) {
+          setError(joinResult.error);
           setStatus("error");
           return;
         }
 
-        if (result.data) {
-          // Store session in global state
-          setCurrentSessionRef.current(result.data);
-
-          // Show success state
+        // Check if we got an immediate match
+        if (joinResult.data && matchmakingApi.isMatchResult(joinResult.data)) {
+          // Matched immediately!
           setStatus("found");
 
-          // Navigate to session room after delay
+          // Store session stub (will fetch full session in session screen)
+          setCurrentSessionRef.current({
+            id: joinResult.data.sessionId,
+            topic_id: joinResult.data.topicId,
+            topic_name: joinResult.data.topicName,
+            partner_id: joinResult.data.partnerId,
+            partner_name: joinResult.data.partnerName,
+            partner_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              joinResult.data.partnerName
+            )}`,
+            status: "active",
+            started_at: new Date().toISOString(),
+            duration_minutes: 25,
+            question: undefined, // Will be fetched in session screen
+          });
+
+          // Navigate to session
           setTimeout(() => {
             routerRef.current.replace("/(app)/session");
           }, 2000);
-        } else {
-          // Handle case where there's no error but also no data
-          setError("No match found. Please try again.");
-          setStatus("error");
+          return;
         }
-      } catch (err) {
-        clearTimeout(timeoutId);
+
+        // Still in queue - start polling
+        if (joinResult.data && "isInQueue" in joinResult.data) {
+          setQueuePosition(joinResult.data.position);
+          setEstimatedWaitTime(joinResult.data.estimatedWaitTime);
+        }
+
+        // Poll every 3 seconds for matches
+        pollInterval = setInterval(async () => {
+          if (isCancelled) {
+            clearInterval(pollInterval);
+            return;
+          }
+
+          const statusResult = await matchmakingApi.checkQueueStatus();
+
+          if (statusResult.error) {
+            clearInterval(pollInterval);
+            setError(statusResult.error);
+            setStatus("error");
+            return;
+          }
+
+          if (statusResult.data) {
+            // Check if matched
+            if (matchmakingApi.isMatchResult(statusResult.data)) {
+              clearInterval(pollInterval);
+              setStatus("found");
+
+              // Store session stub
+              setCurrentSessionRef.current({
+                id: statusResult.data.sessionId,
+                topic_id: statusResult.data.topicId,
+                topic_name: statusResult.data.topicName,
+                partner_id: statusResult.data.partnerId,
+                partner_name: statusResult.data.partnerName,
+                partner_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  statusResult.data.partnerName
+                )}`,
+                status: "active",
+                started_at: new Date().toISOString(),
+                duration_minutes: 25,
+                question: undefined,
+              });
+
+              // Navigate to session
+              setTimeout(() => {
+                routerRef.current.replace("/(app)/session");
+              }, 2000);
+            } else {
+              // Still in queue - update position
+              setQueuePosition(statusResult.data.position);
+              setEstimatedWaitTime(statusResult.data.estimatedWaitTime);
+            }
+          }
+        }, 3000);
+      } catch (err: any) {
         if (!isCancelled) {
-          setError("Failed to find a match. Please try again.");
+          setError(
+            err.message || "Failed to start matchmaking. Please try again."
+          );
           setStatus("error");
         }
       }
     };
 
-    findMatch();
+    startMatchmaking();
 
     return () => {
       isCancelled = true;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (pollInterval) {
+        clearInterval(pollInterval);
       }
+      // Clean up queue
+      matchmakingApi.leaveQueue();
     };
-  }, [topicId]);
+  }, [topicId, difficulty]);
 
   const handleCancel = async () => {
-    await matchmakingApi.cancelMatch();
+    await matchmakingApi.leaveQueue();
     routerRef.current.back();
   };
 
-  const handleRetry = (difficulty: string | string[] | undefined) => {
+  const handleRetry = (retryDifficulty: string | string[] | undefined) => {
     setError("");
     setStatus("searching");
     routerRef.current.replace({
       pathname: "/(app)/queue",
-      params: { topicId, difficulty },
+      params: { topicId, difficulty: retryDifficulty },
     });
   };
 
   return {
     status,
+    queuePosition,
+    estimatedWaitTime,
     error,
     handleCancel,
     handleRetry,

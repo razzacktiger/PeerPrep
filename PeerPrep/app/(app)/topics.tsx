@@ -42,6 +42,7 @@ export default function TopicsScreen() {
         pathname: "/(app)/queue",
         params: {
           topicId: topic.id,
+          difficulty: topic.difficulty, // Add difficulty parameter
         },
       });
     } catch (error) {

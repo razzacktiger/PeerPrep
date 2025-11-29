@@ -24,9 +24,15 @@ export default function QueueScreen() {
   const topic = TOPICS.find((t) => t.id === topicId);
 
   // Custom hooks for logic separation
-  const { status, error, handleCancel, handleRetry } =
-    useMatchmaking(topicId);
-  const { progress, estimatedTime, resetProgress } = useQueueProgress(status);
+  const {
+    status,
+    queuePosition,
+    estimatedWaitTime,
+    error,
+    handleCancel,
+    handleRetry,
+  } = useMatchmaking(topicId, difficulty);
+  const { progress, resetProgress } = useQueueProgress(status);
   const { pingAnim1, pingAnim2, bounceAnim } = useQueueAnimations(status);
 
   // Get difficulty colors
@@ -110,7 +116,8 @@ export default function QueueScreen() {
                 {status === "found" && "Match Found! 🎉"}
               </Text>
               <Text style={styles.statusSubtitle}>
-                {status === "searching" && "Searching for someone at your level"}
+                {status === "searching" &&
+                  "Searching for someone at your level"}
                 {status === "found" && "Preparing your session..."}
               </Text>
             </View>
@@ -128,7 +135,7 @@ export default function QueueScreen() {
             {status === "searching" && (
               <QueueProgress
                 status="searching"
-                estimatedTime={estimatedTime}
+                estimatedTime={estimatedWaitTime}
                 progress={progress}
               />
             )}
@@ -145,7 +152,11 @@ export default function QueueScreen() {
                 style={styles.cancelButton}
                 labelStyle={styles.cancelButtonLabel}
                 icon={() => (
-                  <MaterialCommunityIcons name="close" size={20} color="#6B7280" />
+                  <MaterialCommunityIcons
+                    name="close"
+                    size={20}
+                    color="#6B7280"
+                  />
                 )}
                 textColor="#374151"
               >
@@ -161,4 +172,3 @@ export default function QueueScreen() {
     </LinearGradient>
   );
 }
-
