@@ -20,7 +20,7 @@ export default StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     padding: 12,
     borderRadius: 16,
-    backdropFilter: "blur(10px)",
+    overflow: "hidden",
   },
   title: {
     fontSize: 24,
