@@ -1,15 +1,17 @@
 import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons/';
+import { StatsProvider } from '../../lib/contexts/StatsContext';
 
 export default function AppLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: true,
-        tabBarActiveTintColor: '#6200ee',
-        tabBarInactiveTintColor: '#757575',
-      }}
-    >
+    <StatsProvider>
+      <Tabs
+        screenOptions={{
+          headerShown: true,
+          tabBarActiveTintColor: '#6200ee',
+          tabBarInactiveTintColor: '#757575',
+        }}
+      >
       <Tabs.Screen
         name="home"
         options={{
@@ -79,5 +81,6 @@ export default function AppLayout() {
         }}
       />
     </Tabs>
+    </StatsProvider>
   );
 }
