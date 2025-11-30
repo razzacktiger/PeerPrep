@@ -62,18 +62,24 @@ export default StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
   },
-  difficultyEasy: {
-    backgroundColor: "#D1FAE5",
-  },
-  difficultyMedium: {
-    backgroundColor: "#FEF3C7",
-  },
-  difficultyHard: {
-    backgroundColor: "#FEE2E2",
-  },
   difficultyText: {
     fontSize: 12,
     fontWeight: "600",
+  },
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#6B7280",
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#9CA3AF",
+    marginTop: 8,
   },
   sessionFooter: {
     flexDirection: "row",
