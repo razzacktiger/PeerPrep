@@ -81,7 +81,18 @@ export const useMatchmaking = (
             status: "active",
             started_at: new Date().toISOString(),
             duration_minutes: 25,
-            question: undefined, // Will be fetched in session screen
+            question: {
+              id: "mock-1",
+              title: "Two Sum",
+              prompt:
+                "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.",
+              difficulty: "Easy",
+              topic: joinResult.data.topicName,
+              hints: [
+                "Use a hash map to store values and their indices",
+                "For each number, check if target - number exists in the map",
+              ],
+            },
           });
 
           // Navigate to session
@@ -132,7 +143,18 @@ export const useMatchmaking = (
                 status: "active",
                 started_at: new Date().toISOString(),
                 duration_minutes: 25,
-                question: undefined,
+                question: {
+                  id: "mock-1",
+                  title: "Two Sum",
+                  prompt:
+                    "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.",
+                  difficulty: "Easy",
+                  topic: statusResult.data.topicName,
+                  hints: [
+                    "Use a hash map to store values and their indices",
+                    "For each number, check if target - number exists in the map",
+                  ],
+                },
               });
 
               // Navigate to session
