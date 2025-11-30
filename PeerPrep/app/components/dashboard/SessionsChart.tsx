@@ -4,16 +4,16 @@ import { Text } from "react-native-paper";
 import { LineChart } from "react-native-chart-kit";
 import styles from "../../styles/dashboard/SessionsChartStyles";
 
-const sessionsData = [
-  { month: "Jan", sessions: 2 },
-  { month: "Feb", sessions: 3 },
-  { month: "Mar", sessions: 5 },
-  { month: "Apr", sessions: 4 },
-  { month: "May", sessions: 6 },
-  { month: "Jun", sessions: 4 },
-];
+interface SessionData {
+  month: string;
+  sessions: number;
+}
 
-export default function SessionsChart() {
+interface SessionsChartProps {
+  data: SessionData[];
+}
+
+export default function SessionsChart({ data }: SessionsChartProps) {
   const screenWidth = Dimensions.get("window").width - 64;
 
   return (
@@ -23,8 +23,8 @@ export default function SessionsChart() {
       
       <LineChart
         data={{
-          labels: sessionsData.map((d) => d.month),
-          datasets: [{ data: sessionsData.map((d) => d.sessions) }],
+          labels: data.map((d) => d.month),
+          datasets: [{ data: data.map((d) => d.sessions) }],
         }}
         width={screenWidth}
         height={220}
