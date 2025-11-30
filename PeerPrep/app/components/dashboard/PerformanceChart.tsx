@@ -4,16 +4,31 @@ import { Text } from "react-native-paper";
 import { BarChart } from "react-native-chart-kit";
 import styles from "../../styles/dashboard/PerformanceChartStyles";
 
-const performanceData = [
-  { topic: "Arrays", score: 85 },
-  { topic: "Strings", score: 78 },
-  { topic: "Trees", score: 92 },
-  { topic: "Graphs", score: 68 },
-  { topic: "DP", score: 75 },
-];
+interface PerformanceData {
+  topic: string;
+  score: number;
+}
 
-export default function PerformanceChart() {
+interface PerformanceChartProps {
+  data: PerformanceData[];
+}
+
+export default function PerformanceChart({ data }: PerformanceChartProps) {
   const screenWidth = Dimensions.get("window").width - 64;
+
+  if (!data || data.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Performance by Topic</Text>
+        <View style={{ padding: 32, alignItems: 'center' }}>
+          <Text style={{ fontSize: 48, marginBottom: 8 }}>📊</Text>
+          <Text style={[styles.subtitle, { textAlign: 'center', paddingHorizontal: 16 }]}>
+            Complete sessions and receive feedback to see performance metrics
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -22,8 +37,8 @@ export default function PerformanceChart() {
       
       <BarChart
         data={{
-          labels: performanceData.map((d) => d.topic),
-          datasets: [{ data: performanceData.map((d) => d.score) }],
+          labels: data.map((d) => d.topic),
+          datasets: [{ data: data.map((d) => d.score) }],
         }}
         width={screenWidth}
         height={220}
