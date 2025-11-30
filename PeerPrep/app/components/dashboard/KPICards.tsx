@@ -5,20 +5,25 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import styles from "../../styles/dashboard/KPICardsStyles";
 
-const kpis = [
-  { label: "Sessions", value: "24", change: "+12%", icon: "target", gradient: ["#3B82F6", "#06B6D4"] as const },
-  { label: "Success Rate", value: "87%", change: "+5%", icon: "trending-up", gradient: ["#10B981", "#059669"] as const },
-  { label: "Avg Rating", value: "4.6", change: "+0.3", icon: "trophy", gradient: ["#8B5CF6", "#EC4899"] as const },
-  { label: "Total Hours", value: "18h", change: "+4h", icon: "clock-outline", gradient: ["#F59E0B", "#EF4444"] as const },
-] as const;
+interface KPI {
+  label: string;
+  value: string;
+  change: string;
+  icon: string;
+  gradient: string[];
+}
 
-export default function KPICards() {
+interface KPICardsProps {
+  kpis: KPI[];
+}
+
+export default function KPICards({ kpis }: KPICardsProps) {
   return (
     <View style={styles.container}>
-      {kpis.map((kpi) => (
-        <View key={kpi.label} style={styles.card}>
+      {kpis.map((kpi, index) => (
+        <View key={index} style={styles.card}>
           <LinearGradient
-            colors={kpi.gradient}
+            colors={kpi.gradient as any}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.iconContainer}
