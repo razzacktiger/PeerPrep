@@ -12,4 +12,14 @@ export default StyleSheet.create({
     paddingHorizontal: 16,
     marginTop: -16,
   },
+  centered: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
 });
