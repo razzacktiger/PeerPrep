@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SettingsHeader from "../components/settings/SettingsHeader";
 import ProfileSection from "../components/settings/ProfileSection";
 import PreferencesSection from "../components/settings/PreferencesSection";
 import AccountActionsSection from "../components/settings/AccountActionsSection";
+import { useAuthStore } from "../../stores/authStore";
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const signOut = useAuthStore((state) => state.signOut);
 
   // Profile state
   const [fullName, setFullName] = useState("Alex Johnson");
@@ -31,12 +35,17 @@ export default function SettingsScreen() {
 
   const handleChangePassword = () => {
     console.log("Change password");
-    // TODO: Navigate to change password screen
+    router.push("/(app)/settings/change-password");
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     console.log("Sign out");
-    // TODO: Sign out logic
+    try {
+      await signOut();
+      router.replace("/(auth)/sign-in");
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -96,4 +105,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-

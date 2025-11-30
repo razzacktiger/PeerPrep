@@ -83,12 +83,16 @@ export default function SessionScreen() {
       .padStart(2, "0")}`;
   };
 
-  const handleEndSession = () => {
+  const handleEndSession = async () => {
     setShowEndDialog(false);
+
+    // End the session in database
+    if (currentSession) {
+      await sessionsApi.endSession(currentSession.id);
+    }
+
     router.push("/(app)/session/feedback");
   };
-
-
 
   const handleSaveNotes = () => {
     if (currentSession) {
@@ -99,9 +103,19 @@ export default function SessionScreen() {
   if (!currentSession) {
     return (
       <View style={sessionStyles.container}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 16 }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 16,
+          }}
+        >
           <Text variant="headlineSmall">No active session</Text>
-          <Button mode="contained" onPress={() => router.replace("/(app)/home")}>
+          <Button
+            mode="contained"
+            onPress={() => router.replace("/(app)/home")}
+          >
             Go Home
           </Button>
         </View>
@@ -110,9 +124,12 @@ export default function SessionScreen() {
   }
 
   const QuestionRoute = () => (
-    <ScrollView style={sessionStyles.tabContent} contentContainerStyle={sessionStyles.scrollContent}>
+    <ScrollView
+      style={sessionStyles.tabContent}
+      contentContainerStyle={sessionStyles.scrollContent}
+    >
       <SessionQuestion question={currentSession.question!} />
-      
+
       {/* Recording Toggle */}
       <View style={sessionStyles.recordingCard}>
         <View style={sessionStyles.recordingRow}>
@@ -120,7 +137,9 @@ export default function SessionScreen() {
             <View
               style={[
                 sessionStyles.recordingDot,
-                isRecording ? sessionStyles.recordingDotActive : sessionStyles.recordingDotInactive,
+                isRecording
+                  ? sessionStyles.recordingDotActive
+                  : sessionStyles.recordingDotInactive,
               ]}
             />
             <Text style={sessionStyles.recordingText}>
@@ -144,15 +163,15 @@ export default function SessionScreen() {
 
   const CodeRoute = () => (
     <View style={sessionStyles.tabContent}>
-      <SessionCodeEditor
-        code={code}
-        onCodeChange={setCode}
-      />
+      <SessionCodeEditor code={code} onCodeChange={setCode} />
     </View>
   );
 
   const NotesRoute = () => (
-    <ScrollView style={sessionStyles.tabContent} contentContainerStyle={sessionStyles.scrollContent}>
+    <ScrollView
+      style={sessionStyles.tabContent}
+      contentContainerStyle={sessionStyles.scrollContent}
+    >
       <SessionNotes
         notes={sessionNotes}
         onNotesChange={updateNotes}

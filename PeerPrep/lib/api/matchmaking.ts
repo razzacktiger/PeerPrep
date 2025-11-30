@@ -185,7 +185,7 @@ export async function checkQueueStatus(): Promise<
         .from("sessions")
         .select("id, topic_id, host_id, guest_id, topics(name)")
         .or(`host_id.eq.${user.id},guest_id.eq.${user.id}`)
-        .eq("status", "pending")
+        .eq("status", "active") // Only look for active sessions, not pending
         .order("created_at", { ascending: false })
         .limit(1)
         .single();

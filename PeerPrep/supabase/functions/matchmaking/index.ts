@@ -83,7 +83,7 @@ serve(async (req: Request) => {
         topic_id: topic_id,
         host_id: user_id,
         guest_id: partner.profile_id,
-        status: "pending",
+        status: "active", // Set to active immediately
         started_at: new Date().toISOString(),
         duration_minutes: 25,
       })
