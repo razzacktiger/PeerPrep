@@ -44,6 +44,7 @@ export default function AppLayout() {
         name="dashboard"
         options={{
           title: 'Dashboard',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="chart-line" size={size} color={color} />
           ),
