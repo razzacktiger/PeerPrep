@@ -20,10 +20,6 @@ export interface UseSettingsReturn {
   preferences: settingsApi.UserPreferences | null;
   darkMode: boolean;
   pushNotifications: boolean;
-  emailNotifications: boolean;
-  sessionReminders: boolean;
-  matchUpdates: boolean;
-  autoMatchOnPreferences: boolean;
   
   // Loading & error states
   isLoading: boolean;
@@ -53,10 +49,6 @@ export function useSettings(): UseSettingsReturn {
   const [preferences, setPreferences] = useState<settingsApi.UserPreferences | null>(null);
   const [darkMode, setDarkMode] = useState(false);
   const [pushNotifications, setPushNotifications] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(false);
-  const [sessionReminders, setSessionReminders] = useState(true);
-  const [matchUpdates, setMatchUpdates] = useState(true);
-  const [autoMatchOnPreferences, setAutoMatchOnPreferences] = useState(false);
   
   // Loading & error states
   const [isLoading, setIsLoading] = useState(true);
@@ -103,10 +95,6 @@ export function useSettings(): UseSettingsReturn {
         setPreferences(prefsResult.data);
         setDarkMode(prefsResult.data.dark_mode);
         setPushNotifications(prefsResult.data.push_notifications);
-        setEmailNotifications(prefsResult.data.email_notifications);
-        setSessionReminders(prefsResult.data.session_reminders);
-        setMatchUpdates(prefsResult.data.match_updates);
-        setAutoMatchOnPreferences(prefsResult.data.auto_match_on_preferences);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load settings');
@@ -173,18 +161,6 @@ export function useSettings(): UseSettingsReturn {
       case 'push_notifications':
         setPushNotifications(value);
         break;
-      case 'email_notifications':
-        setEmailNotifications(value);
-        break;
-      case 'session_reminders':
-        setSessionReminders(value);
-        break;
-      case 'match_updates':
-        setMatchUpdates(value);
-        break;
-      case 'auto_match_on_preferences':
-        setAutoMatchOnPreferences(value);
-        break;
     }
     
     try {
@@ -200,18 +176,6 @@ export function useSettings(): UseSettingsReturn {
               break;
             case 'push_notifications':
               setPushNotifications(preferences.push_notifications);
-              break;
-            case 'email_notifications':
-              setEmailNotifications(preferences.email_notifications);
-              break;
-            case 'session_reminders':
-              setSessionReminders(preferences.session_reminders);
-              break;
-            case 'match_updates':
-              setMatchUpdates(preferences.match_updates);
-              break;
-            case 'auto_match_on_preferences':
-              setAutoMatchOnPreferences(preferences.auto_match_on_preferences);
               break;
           }
         }
@@ -250,10 +214,6 @@ export function useSettings(): UseSettingsReturn {
     preferences,
     darkMode,
     pushNotifications,
-    emailNotifications,
-    sessionReminders,
-    matchUpdates,
-    autoMatchOnPreferences,
     
     // Loading & error states
     isLoading,
