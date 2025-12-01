@@ -166,16 +166,8 @@ export default function SettingsScreen() {
         <PreferencesSection
           darkMode={settings.darkMode}
           pushNotifications={settings.pushNotifications}
-          emailNotifications={settings.emailNotifications}
-          sessionReminders={settings.sessionReminders}
-          matchUpdates={settings.matchUpdates}
-          autoMatchOnPreferences={settings.autoMatchOnPreferences}
           onDarkModeChange={(value) => settings.updatePreference('dark_mode', value)}
           onPushNotificationsChange={(value) => settings.updatePreference('push_notifications', value)}
-          onEmailNotificationsChange={(value) => settings.updatePreference('email_notifications', value)}
-          onSessionRemindersChange={(value) => settings.updatePreference('session_reminders', value)}
-          onMatchUpdatesChange={(value) => settings.updatePreference('match_updates', value)}
-          onAutoMatchOnPreferencesChange={(value) => settings.updatePreference('auto_match_on_preferences', value)}
         />
 
         <AccountActionsSection
