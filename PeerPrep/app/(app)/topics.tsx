@@ -38,11 +38,18 @@ export default function TopicsScreen() {
   const handlePracticeNow = async (topic: Topic) => {
     try {
       await AsyncStorage.setItem("selectedTopic", JSON.stringify(topic));
+      console.log("🚀 Navigating to queue with:", {
+        topicId: topic.id,
+        difficulty: topic.difficulty,
+        timestamp: Date.now(),
+      });
       router.push({
         pathname: "/(app)/queue",
         params: {
           topicId: topic.id,
-          difficulty: topic.difficulty, // Add difficulty parameter
+          difficulty: topic.difficulty,
+          // Add timestamp to force remount
+          _t: Date.now().toString(),
         },
       });
     } catch (error) {

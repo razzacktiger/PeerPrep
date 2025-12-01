@@ -27,16 +27,10 @@ export default StyleSheet.create({
     fontWeight: "700",
     color: "#111827",
   },
-  saveButton: {
-    height: 36,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
-    justifyContent: "center",
-  },
-  saveButtonLabel: {
-    fontSize: 14,
+  syncIndicator: {
+    fontSize: 12,
     fontWeight: "600",
+    color: "#10B981",
   },
   infoCard: {
     backgroundColor: "#FEF3C7",

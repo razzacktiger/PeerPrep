@@ -9,14 +9,17 @@ import { useSessionStore } from "../../stores/sessionStore";
  */
 export const useMatchmaking = (
   topicId: string | string[] | undefined,
-  difficulty: string | string[] | undefined
+  difficulty: string | string[] | undefined,
+  timestamp?: string | string[] | undefined
 ) => {
   const router = useRouter();
   const setCurrentSession = useSessionStore((state) => state.setCurrentSession);
+  const resetSession = useSessionStore((state) => state.resetSession);
 
-  const [status, setStatus] = useState<"searching" | "found" | "error">(
-    "searching"
-  );
+  const [status, setStatus] = useState<"searching" | "found" | "error">(() => {
+    console.log("🎬 useMatchmaking: Initial status = searching");
+    return "searching";
+  });
   const [queuePosition, setQueuePosition] = useState<number>(1);
   const [estimatedWaitTime, setEstimatedWaitTime] = useState<number>(60);
   const [error, setError] = useState("");
@@ -30,6 +33,27 @@ export const useMatchmaking = (
     routerRef.current = router;
     setCurrentSessionRef.current = setCurrentSession;
   });
+
+  // Clear any existing session when entering matchmaking
+  // Runs when topicId, difficulty, or timestamp changes (i.e., new matchmaking attempt)
+  useEffect(() => {
+    const currentSessionInStore = useSessionStore.getState().currentSession;
+    console.log("🧹 Clearing any existing session state before matchmaking", {
+      hadSession: !!currentSessionInStore,
+      sessionId: currentSessionInStore?.id,
+      currentStatus: status,
+      topicId,
+      difficulty,
+      timestamp,
+    });
+    resetSession();
+    // Reset status to searching (in case component didn't unmount)
+    console.log("🔄 Resetting status from", status, "to searching");
+    setStatus("searching");
+    setError("");
+    setQueuePosition(1);
+    setEstimatedWaitTime(60);
+  }, [topicId, difficulty, timestamp, resetSession]); // Run when params change
 
   // Start matchmaking
   useEffect(() => {
@@ -188,7 +212,7 @@ export const useMatchmaking = (
       // Clean up queue
       matchmakingApi.leaveQueue();
     };
-  }, [topicId, difficulty]);
+  }, [topicId, difficulty, timestamp]); // Add timestamp to trigger on each new attempt
 
   const handleCancel = async () => {
     await matchmakingApi.leaveQueue();

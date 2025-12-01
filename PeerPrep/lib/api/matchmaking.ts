@@ -47,6 +47,8 @@ export async function joinQueue(
       return { error: "User not authenticated" };
     }
 
+    // Note: No need to check for existing sessions here anymore
+    // RLS policies now properly allow session updates, so endSession() works correctly
     console.log("📝 Checking/inserting into matchmaking_queue...");
 
     // Check if user is already in queue
@@ -180,18 +182,38 @@ export async function checkQueueStatus(): Promise<
       .single();
 
     if (queueError || !queueEntry) {
-      // User no longer in queue - check if session was created
+      console.log("🔍 User not in queue, checking for existing session...");
+
+      // User no longer in queue - check if session was created RECENTLY (within last 2 minutes)
+      // Reduced from 5 to 2 minutes to be more strict
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+
       const { data: session, error: sessionError } = await supabase
         .from("sessions")
-        .select("id, topic_id, host_id, guest_id, topics(name)")
+        .select(
+          "id, topic_id, host_id, guest_id, topics(name), ended_at, status, created_at"
+        )
         .or(`host_id.eq.${user.id},guest_id.eq.${user.id}`)
-        .eq("status", "active") // Only look for active sessions, not pending
+        .eq("status", "active") // Only look for active sessions
+        .is("ended_at", null) // Session must not be ended
+        .gte("created_at", twoMinutesAgo) // Only sessions created in last 2 minutes (more strict!)
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single() to avoid error
+
+      console.log("📊 Session query result:", {
+        found: !!session,
+        error: sessionError?.message,
+        sessionId: session?.id,
+        status: session?.status,
+        ended_at: session?.ended_at,
+        created_at: session?.created_at,
+        twoMinutesAgo,
+      });
 
       if (!sessionError && session) {
         // Found session - matched!
+        console.log("✅ Found active session, returning match result");
         const partnerId =
           session.host_id === user.id ? session.guest_id : session.host_id;
 
@@ -206,6 +228,7 @@ export async function checkQueueStatus(): Promise<
         };
       }
 
+      console.log("❌ No active session found");
       return { error: "No longer in queue" };
     }
 

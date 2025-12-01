@@ -1,39 +1,28 @@
-import React from "react";
+import React, { memo } from "react";
 import { View, TextInput } from "react-native";
-import { Text, Button } from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Text } from "react-native-paper";
 import styles from "../../styles/session/SessionNotesStyles";
 
 interface SessionNotesProps {
   notes: string;
   onNotesChange: (notes: string) => void;
-  onSave: () => void;
 }
 
-export default function SessionNotes({
+const SessionNotes = memo(function SessionNotes({
   notes,
   onNotesChange,
-  onSave,
 }: SessionNotesProps) {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
         <View style={styles.header}>
-          <Text style={styles.title}>Personal Notes</Text>
-          <Button
-            mode="outlined"
-            onPress={onSave}
-            style={styles.saveButton}
-            labelStyle={styles.saveButtonLabel}
-            icon={() => <MaterialCommunityIcons name="content-save" size={16} color="#374151" />}
-          >
-            Save
-          </Button>
+          <Text style={styles.title}>Shared Notes</Text>
+          <Text style={styles.syncIndicator}>🔄 Auto-syncing</Text>
         </View>
 
         <View style={styles.infoCard}>
           <Text style={styles.infoText}>
-            💡 These notes are private and not shared with your partner
+            💡 These notes are shared with your partner in real-time
           </Text>
         </View>
 
@@ -48,4 +37,6 @@ export default function SessionNotes({
       </View>
     </View>
   );
-}
+});
+
+export default SessionNotes;

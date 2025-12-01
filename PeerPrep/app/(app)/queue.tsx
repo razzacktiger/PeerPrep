@@ -18,7 +18,9 @@ import styles from "../styles/queueStyles";
 export default function QueueScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { topicId, difficulty } = params;
+  const { topicId, difficulty, _t } = params;
+
+  console.log("📺 QueueScreen render - params:", { topicId, difficulty, _t });
 
   // Find topic info
   const topic = TOPICS.find((t) => t.id === topicId);
@@ -31,7 +33,9 @@ export default function QueueScreen() {
     error,
     handleCancel,
     handleRetry,
-  } = useMatchmaking(topicId, difficulty);
+  } = useMatchmaking(topicId, difficulty, _t);
+
+  console.log("📺 QueueScreen render - status:", status);
   const { progress, resetProgress } = useQueueProgress(status);
   const { pingAnim1, pingAnim2, bounceAnim } = useQueueAnimations(status);
 
