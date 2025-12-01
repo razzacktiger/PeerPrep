@@ -49,10 +49,18 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
                 <Text style={styles.activityIcon}>📖</Text>
               </LinearGradient>
               <View style={styles.activityInfo}>
-                <Text style={styles.activityTopic}>{activity.topic}</Text>
-                <Text style={styles.activityDetails}>
-                  {activity.partner} • {activity.date}
+                <Text style={styles.activityTopic} numberOfLines={1}>
+                  {activity.topic}
                 </Text>
+                <View style={styles.activityMetaContainer}>
+                  <Text style={styles.activityDetails} numberOfLines={1}>
+                    {activity.partner}
+                  </Text>
+                  <Text style={styles.activityDot}>•</Text>
+                  <Text style={styles.activityDetails} numberOfLines={1}>
+                    {activity.date}
+                  </Text>
+                </View>
               </View>
             </View>
             <View style={styles.ratingContainer}>
