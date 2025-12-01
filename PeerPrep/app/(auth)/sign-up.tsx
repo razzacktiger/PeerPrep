@@ -4,10 +4,16 @@
  */
 
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { TextInput, Button, Text, HelperText, Card } from 'react-native-paper';
+import { View, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, Link } from 'expo-router';
 import { useAuthStore } from '../../stores/authStore';
+import AuthInput from '../components/auth/AuthInput';
+import AuthButton from '../components/auth/AuthButton';
+import ErrorMessage from '../components/auth/ErrorMessage';
+import { authStyles } from '../styles/auth/authStyles';
+import { GRADIENTS } from '../../lib/constants/colors';
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -59,172 +65,104 @@ export default function SignUpScreen() {
   const displayError = error || localError;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <LinearGradient
+      colors={GRADIENTS.HEADER}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={authStyles.gradientContainer}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={authStyles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.content}>
-          {/* Logo/Title Section */}
-          <View style={styles.header}>
-            <Text variant="displaySmall" style={styles.title}>
-              🎯 PeerPrep
-            </Text>
-            <Text variant="bodyLarge" style={styles.subtitle}>
-              Join the community
-            </Text>
-          </View>
-
-          {/* Form Card */}
-          <Card style={styles.card}>
-            <Card.Content>
-              <Text variant="headlineSmall" style={styles.cardTitle}>
-                Create Account
+        <ScrollView
+          contentContainerStyle={authStyles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={authStyles.content}>
+            {/* Logo/Title Section */}
+            <View style={authStyles.header}>
+              <Text style={authStyles.title}>
+                🎯 PeerPrep
               </Text>
+              <Text style={authStyles.subtitle}>
+                Join the community
+              </Text>
+            </View>
 
-              <TextInput
+            {/* Form Card */}
+            <View style={authStyles.card}>
+              <AuthInput
                 label="Full Name"
                 value={name}
                 onChangeText={setName}
-                mode="outlined"
                 autoCapitalize="words"
                 autoComplete="name"
-                style={styles.input}
                 disabled={isLoading}
+                placeholder="Enter your full name"
               />
 
-              <TextInput
+              <AuthInput
                 label="Email"
                 value={email}
                 onChangeText={setEmail}
-                mode="outlined"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
-                style={styles.input}
                 disabled={isLoading}
+                placeholder="Enter your email"
               />
 
-              <TextInput
+              <AuthInput
                 label="Password"
                 value={password}
                 onChangeText={setPassword}
-                mode="outlined"
-                secureTextEntry={!showPassword}
+                isPassword
+                showPassword={showPassword}
+                onTogglePassword={() => setShowPassword(!showPassword)}
                 autoCapitalize="none"
                 autoComplete="password-new"
-                style={styles.input}
                 disabled={isLoading}
-                right={
-                  <TextInput.Icon
-                    icon={showPassword ? 'eye-off' : 'eye'}
-                    onPress={() => setShowPassword(!showPassword)}
-                  />
-                }
+                placeholder="Create a password"
               />
 
-              <TextInput
+              <AuthInput
                 label="Confirm Password"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
-                mode="outlined"
-                secureTextEntry={!showConfirmPassword}
+                isPassword
+                showPassword={showConfirmPassword}
+                onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
                 autoCapitalize="none"
                 autoComplete="password-new"
-                style={styles.input}
                 disabled={isLoading}
-                right={
-                  <TextInput.Icon
-                    icon={showConfirmPassword ? 'eye-off' : 'eye'}
-                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  />
-                }
+                placeholder="Confirm your password"
               />
 
-              {displayError && (
-                <HelperText type="error" visible={!!displayError}>
-                  {displayError}
-                </HelperText>
-              )}
+              <ErrorMessage message={displayError} />
 
-              <Button
-                mode="contained"
+              <AuthButton
+                title="Create Account"
                 onPress={handleSignUp}
-                loading={isLoading}
-                disabled={!isFormValid || isLoading}
-                style={styles.button}
-              >
-                Create Account
-              </Button>
+                disabled={!isFormValid}
+                isLoading={isLoading}
+              />
 
               {/* Sign In Link */}
-              <View style={styles.linkContainer}>
-                <Text variant="bodyMedium">Already have an account? </Text>
+              <View style={authStyles.linkContainer}>
+                <Text style={authStyles.linkText}>Already have an account? </Text>
                 <Link href="/(auth)/sign-in" asChild>
-                  <Text variant="bodyMedium" style={styles.link}>
-                    Sign in
-                  </Text>
+                  <TouchableOpacity>
+                    <Text style={authStyles.link}>Sign in</Text>
+                  </TouchableOpacity>
                 </Link>
               </View>
-            </Card.Content>
-          </Card>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: '#666',
-  },
-  card: {
-    backgroundColor: 'white',
-    elevation: 4,
-  },
-  cardTitle: {
-    marginBottom: 20,
-    fontWeight: 'bold',
-  },
-  input: {
-    marginBottom: 12,
-  },
-  button: {
-    marginTop: 16,
-    paddingVertical: 6,
-  },
-  linkContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  link: {
-    color: '#6200ee',
-    fontWeight: 'bold',
-  },
-});
 
 
