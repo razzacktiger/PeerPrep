@@ -4,7 +4,10 @@ import { Text, Button } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSessionStore } from "../../../stores/sessionStore";
-import { useFeedbackSubmission, useHasSubmittedFeedback } from "../../../lib/hooks";
+import {
+  useFeedbackSubmission,
+  useHasSubmittedFeedback,
+} from "../../../lib/hooks";
 import FeedbackHeader from "../../components/session/FeedbackHeader";
 import PartnerRating from "../../components/session/PartnerRating";
 import SelfAssessment from "../../components/session/SelfAssessment";
@@ -13,6 +16,7 @@ import styles from "../../styles/feedbackStyles";
 export default function FeedbackScreen() {
   const router = useRouter();
   const currentSession = useSessionStore((state) => state.currentSession);
+  const setCurrentSession = useSessionStore((state) => state.setCurrentSession);
 
   // Get partner info
   const partnerId = currentSession?.partner_id;
@@ -36,9 +40,8 @@ export default function FeedbackScreen() {
     submitFeedback,
   } = useFeedbackSubmission(sessionId || "", partnerId || "");
 
-  const { hasSubmitted, isLoading: checkingSubmission } = useHasSubmittedFeedback(
-    sessionId || ""
-  );
+  const { hasSubmitted, isLoading: checkingSubmission } =
+    useHasSubmittedFeedback(sessionId || "");
 
   // Redirect to home on successful submission
   useEffect(() => {
@@ -46,10 +49,12 @@ export default function FeedbackScreen() {
       console.log("🎉 Success! Redirecting to home in 1.5s...");
       setTimeout(() => {
         console.log("🏠 Navigating to home...");
+        // Clear session before navigating
+        setCurrentSession(null);
         router.push("/(app)/home");
       }, 1500);
     }
-  }, [success, router]);
+  }, [success, router, setCurrentSession]);
 
   const partner = {
     name: currentSession?.partner_name || "Partner",
@@ -77,6 +82,8 @@ export default function FeedbackScreen() {
 
   const handleSkip = () => {
     console.log("⏭️ Skip pressed, navigating to home...");
+    // Clear session before navigating
+    setCurrentSession(null);
     router.push("/(app)/home");
   };
 
@@ -205,8 +212,7 @@ export default function FeedbackScreen() {
                 paddingHorizontal: 12,
                 paddingVertical: 8,
                 borderRadius: 8,
-                backgroundColor:
-                  confidence === star ? "#2563EB" : "#E5E7EB",
+                backgroundColor: confidence === star ? "#2563EB" : "#E5E7EB",
               }}
             >
               <Text
@@ -233,11 +239,19 @@ export default function FeedbackScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleSubmit}
-          disabled={isSubmitting || clarity === 0 || correctness === 0 || confidence === 0}
+          disabled={
+            isSubmitting ||
+            clarity === 0 ||
+            correctness === 0 ||
+            confidence === 0
+          }
           activeOpacity={0.7}
           style={[
             styles.submitButtonWrapper,
-            (isSubmitting || clarity === 0 || correctness === 0 || confidence === 0) &&
+            (isSubmitting ||
+              clarity === 0 ||
+              correctness === 0 ||
+              confidence === 0) &&
               styles.buttonDisabled,
           ]}
         >
