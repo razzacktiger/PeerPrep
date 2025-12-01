@@ -15,6 +15,9 @@ export default StyleSheet.create({
     shadowRadius: 8,
   },
   header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 16,
     backgroundColor: "#1F2937",
@@ -23,6 +26,11 @@ export default StyleSheet.create({
     fontSize: 14,
     color: "#FFFFFF",
     fontWeight: "500",
+  },
+  syncIndicator: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#10B981",
   },
   editorContainer: {
     flex: 1,
