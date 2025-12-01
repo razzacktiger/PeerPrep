@@ -7,6 +7,7 @@ import styles from "../../styles/session/SelfAssessmentStyles";
 interface SelfAssessmentProps {
   rating: number;
   onRatingChange: (rating: number) => void;
+  label?: string; // Optional custom label for the dimension
 }
 
 const getRatingMessage = (rating: number) => {
@@ -16,13 +17,17 @@ const getRatingMessage = (rating: number) => {
   return null;
 };
 
-export default function SelfAssessment({ rating, onRatingChange }: SelfAssessmentProps) {
+export default function SelfAssessment({ 
+  rating, 
+  onRatingChange,
+  label = "How do you feel about your performance?"
+}: SelfAssessmentProps) {
   const message = getRatingMessage(rating);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Self Assessment</Text>
-      <Text style={styles.subtitle}>How do you feel about your performance?</Text>
+      <Text style={styles.subtitle}>{label}</Text>
 
       {/* Star Rating */}
       <View style={styles.starsContainer}>
