@@ -46,7 +46,7 @@ export default function FeedbackScreen() {
       console.log("🎉 Success! Redirecting to home in 1.5s...");
       setTimeout(() => {
         console.log("🏠 Navigating to home...");
-        router.replace("/(app)/home");
+        router.push("/(app)/home");
       }, 1500);
     }
   }, [success, router]);
@@ -77,14 +77,14 @@ export default function FeedbackScreen() {
 
   const handleSkip = () => {
     console.log("⏭️ Skip pressed, navigating to home...");
-    router.replace("/(app)/home");
+    router.push("/(app)/home");
   };
 
   if (!currentSession) {
     return (
       <View style={styles.emptyContainer}>
         <Text variant="headlineSmall">No session data</Text>
-        <Button mode="contained" onPress={() => router.replace("/(app)/home")}>
+        <Button mode="contained" onPress={() => router.push("/(app)/home")}>
           Go Home
         </Button>
       </View>
@@ -106,7 +106,7 @@ export default function FeedbackScreen() {
         <Text variant="bodyMedium" style={{ marginTop: 8, marginBottom: 24 }}>
           You've already submitted feedback for this session.
         </Text>
-        <Button mode="contained" onPress={() => router.replace("/(app)/home")}>
+        <Button mode="contained" onPress={() => router.push("/(app)/home")}>
           Go Home
         </Button>
       </View>
