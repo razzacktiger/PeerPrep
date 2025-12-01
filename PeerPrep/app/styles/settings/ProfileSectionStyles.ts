@@ -89,6 +89,7 @@ export default StyleSheet.create({
   },
   disabledInput: {
     backgroundColor: "#F1F5F9",
+    height: 25,
   },
   disabledText: {
     fontSize: 15,
