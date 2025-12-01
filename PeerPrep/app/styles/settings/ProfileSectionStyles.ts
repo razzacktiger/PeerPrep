@@ -84,6 +84,21 @@ export default StyleSheet.create({
     color: "#1E293B",
     lineHeight: 20,
   },
+  placeholderText: {
+    color: "#9CA3AF",
+  },
+  disabledInput: {
+    backgroundColor: "#F1F5F9",
+  },
+  disabledText: {
+    fontSize: 15,
+    color: "#64748B",
+  },
+  hint: {
+    fontSize: 12,
+    color: "#94A3B8",
+    marginTop: 4,
+  },
   saveButton: {
     height: 52,
     borderRadius: 12,
