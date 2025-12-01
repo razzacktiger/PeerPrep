@@ -59,6 +59,11 @@ export default StyleSheet.create({
     fontWeight: "600",
     color: "#475569",
   },
+  divider: {
+    height: 1,
+    backgroundColor: "#E2E8F0",
+    marginVertical: 8,
+  },
   deleteWarning: {
     borderRadius: 12,
     backgroundColor: "#FEF2F2",

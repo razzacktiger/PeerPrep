@@ -1,38 +1,67 @@
-import React from "react";
-import { View, Text } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Alert } from "react-native";
 import { Switch } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import styles from "../../styles/settings/PreferencesSectionStyles";
+import {
+  requestNotificationPermissions,
+  checkNotificationPermissions,
+  openAppSettings,
+} from "../../../lib/utils/notifications";
 
 interface PreferencesSectionProps {
   darkMode: boolean;
   pushNotifications: boolean;
-  emailNotifications: boolean;
-  sessionReminders: boolean;
-  matchUpdates: boolean;
-  autoMatchOnPreferences: boolean;
   onDarkModeChange: (value: boolean) => void;
   onPushNotificationsChange: (value: boolean) => void;
-  onEmailNotificationsChange: (value: boolean) => void;
-  onSessionRemindersChange: (value: boolean) => void;
-  onMatchUpdatesChange: (value: boolean) => void;
-  onAutoMatchOnPreferencesChange: (value: boolean) => void;
 }
 
 export default function PreferencesSection({
   darkMode,
   pushNotifications,
-  emailNotifications,
-  sessionReminders,
-  matchUpdates,
-  autoMatchOnPreferences,
   onDarkModeChange,
   onPushNotificationsChange,
-  onEmailNotificationsChange,
-  onSessionRemindersChange,
-  onMatchUpdatesChange,
-  onAutoMatchOnPreferencesChange,
 }: PreferencesSectionProps) {
+  const [systemPermissionGranted, setSystemPermissionGranted] = useState(false);
+
+  // Check notification permissions on mount
+  useEffect(() => {
+    checkPermissions();
+  }, []);
+
+  async function checkPermissions() {
+    const granted = await checkNotificationPermissions();
+    setSystemPermissionGranted(granted);
+  }
+
+  async function handlePushNotificationsToggle(value: boolean) {
+    if (value) {
+      // User wants to enable push notifications
+      const granted = await requestNotificationPermissions();
+      
+      if (granted) {
+        setSystemPermissionGranted(true);
+        onPushNotificationsChange(true);
+      } else {
+        // Permission denied
+        Alert.alert(
+          'Permission Required',
+          'Push notifications require permission. Would you like to open settings?',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Open Settings', 
+              onPress: () => openAppSettings() 
+            },
+          ]
+        );
+      }
+    } else {
+      // User wants to disable push notifications
+      onPushNotificationsChange(false);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Preferences</Text>
@@ -67,39 +96,17 @@ export default function PreferencesSection({
         <View style={styles.preferenceRow}>
           <View style={styles.preferenceInfo}>
             <Text style={styles.preferenceTitle}>Push Notifications</Text>
-            <Text style={styles.preferenceDescription}>Receive push notifications on your device</Text>
+            <Text style={styles.preferenceDescription}>
+              {systemPermissionGranted 
+                ? 'Receive push notifications on your device'
+                : 'Tap to enable push notifications'}
+            </Text>
           </View>
-          <Switch value={pushNotifications} onValueChange={onPushNotificationsChange} color="#2563EB" />
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.preferenceRow}>
-          <View style={styles.preferenceInfo}>
-            <Text style={styles.preferenceTitle}>Email Notifications</Text>
-            <Text style={styles.preferenceDescription}>Receive notifications via email</Text>
-          </View>
-          <Switch value={emailNotifications} onValueChange={onEmailNotificationsChange} color="#2563EB" />
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.preferenceRow}>
-          <View style={styles.preferenceInfo}>
-            <Text style={styles.preferenceTitle}>Session Reminders</Text>
-            <Text style={styles.preferenceDescription}>Get reminded before sessions start</Text>
-          </View>
-          <Switch value={sessionReminders} onValueChange={onSessionRemindersChange} color="#2563EB" />
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.preferenceRow}>
-          <View style={styles.preferenceInfo}>
-            <Text style={styles.preferenceTitle}>Match Updates</Text>
-            <Text style={styles.preferenceDescription}>Get notified when you're matched</Text>
-          </View>
-          <Switch value={matchUpdates} onValueChange={onMatchUpdatesChange} color="#2563EB" />
+          <Switch 
+            value={pushNotifications} 
+            onValueChange={handlePushNotificationsToggle} 
+            color="#2563EB" 
+          />
         </View>
       </View>
 
@@ -109,16 +116,12 @@ export default function PreferencesSection({
           <View style={[styles.iconContainer, styles.sessionIcon]}>
             <MaterialCommunityIcons name="account-group" size={20} color="#6366F1" />
           </View>
-          <Text style={styles.cardTitle}>Session Preferences</Text>
+          <Text style={styles.cardTitle}>Coming Soon</Text>
         </View>
 
-        <View style={styles.preferenceRow}>
-          <View style={styles.preferenceInfo}>
-            <Text style={styles.preferenceTitle}>Auto-match on Preferences</Text>
-            <Text style={styles.preferenceDescription}>Automatically match based on your preferences</Text>
-          </View>
-          <Switch value={autoMatchOnPreferences} onValueChange={onAutoMatchOnPreferencesChange} color="#2563EB" />
-        </View>
+        <Text style={styles.comingSoonText}>
+          Additional preferences like session reminders, match updates, and auto-matching will be available in future updates.
+        </Text>
       </View>
     </View>
   );

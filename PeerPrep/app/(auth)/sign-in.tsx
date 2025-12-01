@@ -4,10 +4,16 @@
  */
 
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { TextInput, Button, Text, HelperText, Card } from 'react-native-paper';
+import { View, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, Link } from 'expo-router';
 import { useAuthStore } from '../../stores/authStore';
+import AuthInput from '../components/auth/AuthInput';
+import AuthButton from '../components/auth/AuthButton';
+import ErrorMessage from '../components/auth/ErrorMessage';
+import { authStyles } from '../styles/auth/authStyles';
+import { GRADIENTS } from '../../lib/constants/colors';
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -34,165 +40,91 @@ export default function SignInScreen() {
   const isFormValid = email.length > 0 && password.length > 0;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <LinearGradient
+      colors={GRADIENTS.HEADER}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={authStyles.gradientContainer}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={authStyles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.content}>
-          {/* Logo/Title Section */}
-          <View style={styles.header}>
-            <Text variant="displaySmall" style={styles.title}>
-              🎯 PeerPrep
-            </Text>
-            <Text variant="bodyLarge" style={styles.subtitle}>
-              Practice interviews with peers
-            </Text>
-          </View>
-
-          {/* Form Card */}
-          <Card style={styles.card}>
-            <Card.Content>
-              <Text variant="headlineSmall" style={styles.cardTitle}>
-                Sign In
+        <ScrollView
+          contentContainerStyle={authStyles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={authStyles.content}>
+            {/* Logo/Title Section */}
+            <View style={authStyles.header}>
+              <Text style={authStyles.title}>
+                🎯 PeerPrep
               </Text>
+              <Text style={authStyles.subtitle}>
+                Practice interviews with peers
+              </Text>
+            </View>
 
-              <TextInput
+            {/* Form Card */}
+            <View style={authStyles.card}>
+              <AuthInput
                 label="Email"
                 value={email}
                 onChangeText={setEmail}
-                mode="outlined"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
-                style={styles.input}
                 disabled={isLoading}
+                placeholder="test@example.com"
               />
 
-              <TextInput
+              <AuthInput
                 label="Password"
                 value={password}
                 onChangeText={setPassword}
-                mode="outlined"
-                secureTextEntry={!showPassword}
+                isPassword
+                showPassword={showPassword}
+                onTogglePassword={() => setShowPassword(!showPassword)}
                 autoCapitalize="none"
                 autoComplete="password"
-                style={styles.input}
                 disabled={isLoading}
-                right={
-                  <TextInput.Icon
-                    icon={showPassword ? 'eye-off' : 'eye'}
-                    onPress={() => setShowPassword(!showPassword)}
-                  />
-                }
+                placeholder="password123"
               />
 
-              {error && (
-                <HelperText type="error" visible={!!error}>
-                  {error}
-                </HelperText>
-              )}
+              <ErrorMessage message={error || ''} />
 
-              <Button
-                mode="contained"
+              <AuthButton
+                title="Continue"
                 onPress={handleSignIn}
-                loading={isLoading}
-                disabled={!isFormValid || isLoading}
-                style={styles.button}
-              >
-                Continue
-              </Button>
+                disabled={!isFormValid}
+                isLoading={isLoading}
+              />
 
               {/* Demo Credentials */}
-              <Card style={styles.demoCard}>
-                <Card.Content>
-                  <Text variant="labelSmall" style={styles.demoText}>
-                    Demo Credentials:
-                  </Text>
-                  <Text variant="bodySmall" style={styles.demoText}>
-                    Email: test@example.com
-                  </Text>
-                  <Text variant="bodySmall" style={styles.demoText}>
-                    Password: password123
-                  </Text>
-                </Card.Content>
-              </Card>
+              <View style={authStyles.demoCard}>
+                <MaterialCommunityIcons name="lightbulb-on" size={16} color="#8B5CF6" />
+                <View style={authStyles.demoContent}>
+                  <Text style={authStyles.demoTitle}>Demo Credentials:</Text>
+                  <Text style={authStyles.demoText}>Email: test@example.com</Text>
+                  <Text style={authStyles.demoText}>Password: password123</Text>
+                </View>
+              </View>
 
               {/* Sign Up Link */}
-              <View style={styles.linkContainer}>
-                <Text variant="bodyMedium">Don't have an account? </Text>
+              <View style={authStyles.linkContainer}>
+                <Text style={authStyles.linkText}>Don't have an account? </Text>
                 <Link href="/(auth)/sign-up" asChild>
-                  <Text variant="bodyMedium" style={styles.link}>
-                    Sign up
-                  </Text>
+                  <TouchableOpacity>
+                    <Text style={authStyles.link}>Sign up</Text>
+                  </TouchableOpacity>
                 </Link>
               </View>
-            </Card.Content>
-          </Card>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: '#666',
-  },
-  card: {
-    backgroundColor: 'white',
-    elevation: 4,
-  },
-  cardTitle: {
-    marginBottom: 20,
-    fontWeight: 'bold',
-  },
-  input: {
-    marginBottom: 12,
-  },
-  button: {
-    marginTop: 16,
-    paddingVertical: 6,
-  },
-  demoCard: {
-    marginTop: 16,
-    backgroundColor: '#e3f2fd',
-  },
-  demoText: {
-    color: '#1976d2',
-  },
-  linkContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  link: {
-    color: '#6200ee',
-    fontWeight: 'bold',
-  },
-});
 
 

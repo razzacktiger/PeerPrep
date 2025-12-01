@@ -3,11 +3,10 @@ import { View } from "react-native";
 import { Text } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { User } from "../../../lib/types";
+import { useAuthStore } from "../../../stores/authStore";
 import styles from "../../styles/home/HomeHeaderStyles";
 
 interface HomeHeaderProps {
-  user: User | null;
   stats: Array<{
     label: string;
     value: string;
@@ -17,7 +16,9 @@ interface HomeHeaderProps {
   paddingTop: number;
 }
 
-export default function HomeHeader({ user, stats, paddingTop }: HomeHeaderProps) {
+export default function HomeHeader({ stats, paddingTop }: HomeHeaderProps) {
+  const user = useAuthStore((state) => state.user);
+  
   return (
     <LinearGradient
       colors={["#9333ea", "#3b82f6", "#4f46e5"]}
@@ -38,7 +39,7 @@ export default function HomeHeader({ user, stats, paddingTop }: HomeHeaderProps)
             </View>
             <View>
               <Text style={styles.welcomeText}>Welcome back</Text>
-              <Text style={styles.userName}>{user?.name || "User"} 👋</Text>
+              <Text style={styles.userName}>{user?.display_name || "User"} 👋</Text>
             </View>
           </View>
         </View>

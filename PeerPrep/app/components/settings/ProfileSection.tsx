@@ -6,25 +6,61 @@ import { GRADIENTS } from "../../../lib/constants/colors";
 import styles from "../../styles/settings/ProfileSectionStyles";
 
 interface ProfileSectionProps {
-  fullName: string;
+  displayName: string;
   email: string;
   bio: string;
-  onFullNameChange: (name: string) => void;
-  onEmailChange: (email: string) => void;
+  avatarUrl: string | null;
+  onDisplayNameChange: (name: string) => void;
   onBioChange: (bio: string) => void;
   onSave: () => void;
+  isSaving?: boolean;
+  saveSuccess?: boolean;
 }
 
 export default function ProfileSection({
-  fullName,
+  displayName,
   email,
   bio,
-  onFullNameChange,
-  onEmailChange,
+  avatarUrl,
+  onDisplayNameChange,
   onBioChange,
   onSave,
+  isSaving = false,
+  saveSuccess = false,
 }: ProfileSectionProps) {
   const [showBioModal, setShowBioModal] = useState(false);
+  const [localDisplayName, setLocalDisplayName] = useState(displayName);
+  const [localBio, setLocalBio] = useState(bio);
+  const [hasChanges, setHasChanges] = useState(false);
+  
+  // Update local state when props change
+  React.useEffect(() => {
+    setLocalDisplayName(displayName);
+    setHasChanges(false);
+  }, [displayName]);
+  
+  React.useEffect(() => {
+    setLocalBio(bio);
+    setHasChanges(false);
+  }, [bio]);
+  
+  // Detect changes
+  React.useEffect(() => {
+    const changed = localDisplayName !== displayName || localBio !== bio;
+    setHasChanges(changed);
+  }, [localDisplayName, localBio, displayName, bio]);
+  
+  const handleSave = () => {
+    // Update parent with changes
+    if (localDisplayName !== displayName) {
+      onDisplayNameChange(localDisplayName);
+    }
+    if (localBio !== bio) {
+      onBioChange(localBio);
+    }
+    // Trigger save
+    onSave();
+  };
   
   return (
     <View style={styles.container}>
@@ -45,11 +81,11 @@ export default function ProfileSection({
 
       {/* Name */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Full Name</Text>
+        <Text style={styles.label}>Display Name</Text>
         <TextInput
-          value={fullName}
-          onChangeText={onFullNameChange}
-          placeholder="Enter your name"
+          value={localDisplayName}
+          onChangeText={setLocalDisplayName}
+          placeholder="Enter your display name"
           placeholderTextColor="#9CA3AF"
           style={styles.input}
         />
@@ -58,15 +94,10 @@ export default function ProfileSection({
       {/* Email */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Email</Text>
-        <TextInput
-          value={email}
-          onChangeText={onEmailChange}
-          placeholder="Enter your email"
-          placeholderTextColor="#9CA3AF"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          style={styles.input}
-        />
+        <View style={[styles.input, styles.disabledInput]}>
+          <Text style={styles.disabledText}>{email}</Text>
+        </View>
+        <Text style={styles.hint}>Email cannot be changed</Text>
       </View>
 
       {/* Bio */}
@@ -75,11 +106,11 @@ export default function ProfileSection({
         <TouchableOpacity onPress={() => setShowBioModal(true)} activeOpacity={1}>
           <View style={[styles.input, styles.bioInput]}>
             <Text 
-              style={styles.bioText}
+              style={[styles.bioText, !localBio && styles.placeholderText]}
               numberOfLines={3}
               ellipsizeMode="tail"
             >
-              {bio || "Tell us about yourself..."}
+              {localBio || "Tell us about yourself..."}
             </Text>
           </View>
         </TouchableOpacity>
@@ -87,17 +118,20 @@ export default function ProfileSection({
 
         {/* Save Button */}
         <TouchableOpacity
-          onPress={onSave}
+          onPress={handleSave}
           activeOpacity={0.8}
           style={styles.saveButton}
+          disabled={isSaving || !hasChanges}
         >
           <LinearGradient
-            colors={GRADIENTS.PRIMARY}
+            colors={isSaving || !hasChanges ? ['#9CA3AF', '#9CA3AF'] : GRADIENTS.PRIMARY}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.saveButtonGradient}
           >
-            <Text style={styles.saveButtonText}>Save Changes</Text>
+            <Text style={styles.saveButtonText}>
+              {isSaving ? 'Saving...' : saveSuccess ? 'Saved ✓' : hasChanges ? 'Save Changes' : 'No Changes'}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -120,8 +154,8 @@ export default function ProfileSection({
             
             <ScrollView style={styles.modalScrollView}>
               <TextInput
-                value={bio}
-                onChangeText={onBioChange}
+                value={localBio}
+                onChangeText={setLocalBio}
                 placeholder="Tell us about yourself..."
                 placeholderTextColor="#9CA3AF"
                 multiline
@@ -132,7 +166,10 @@ export default function ProfileSection({
             </ScrollView>
             
             <TouchableOpacity
-              onPress={() => setShowBioModal(false)}
+              onPress={() => {
+                onBioChange(localBio);
+                setShowBioModal(false);
+              }}
               activeOpacity={0.8}
               style={styles.modalButton}
             >
