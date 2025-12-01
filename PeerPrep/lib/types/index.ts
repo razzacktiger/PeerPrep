@@ -23,10 +23,6 @@ export interface UserProfile extends User {
 export interface UserPreferences {
   user_id: string;
   push_notifications: boolean;
-  email_notifications: boolean;
-  session_reminders: boolean;
-  match_updates: boolean;
-  auto_match_on_preferences: boolean;
   dark_mode: boolean;
 }
 
