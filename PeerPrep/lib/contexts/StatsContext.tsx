@@ -1,15 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuthStore } from '../../stores/authStore';
-import {
-  getUserStats,
-  getSessionsOverTime,
-  getPerformanceByTopic,
-  getRecentSessionHistory,
-  type UserStats,
-  type SessionsOverTime,
-  type TopicPerformance,
-  type RecentSession,
-} from '../api/stats';
+import { getBatchStats } from '../api/statsOptimized';
+import type {
+  UserStats,
+  SessionsOverTime,
+  TopicPerformance,
+  RecentSession,
+} from '../types/stats';
 
 interface StatsContextType {
   stats: UserStats | null;
@@ -47,14 +44,10 @@ export function StatsProvider({ children }: StatsProviderProps) {
       setLoading(true);
       setError(null);
 
-      const [statsData, sessionsData, performanceData, historyData] = await Promise.all([
-        getUserStats(user.id),
-        getSessionsOverTime(user.id),
-        getPerformanceByTopic(user.id),
-        getRecentSessionHistory(user.id, 5),
-      ]);
+      // OPTIMIZED: Single batch query instead of 4 separate calls
+      const { userStats, sessionsOverTime: sessionsData, topicPerformance: performanceData, recentSessions: historyData } = await getBatchStats(user.id);
 
-      setStats(statsData);
+      setStats(userStats);
       setSessionsOverTime(sessionsData);
       setTopicPerformance(performanceData);
       setRecentSessions(historyData);
