@@ -6,3 +6,6 @@
 export { useQueueAnimations } from "./useQueueAnimations";
 export { useQueueProgress } from "./useQueueProgress";
 export { useMatchmaking } from "./useMatchmaking";
+export { useFeedbackSubmission } from "./useFeedbackSubmission";
+export { useSessionFeedback } from "./useSessionFeedback";
+export { useHasSubmittedFeedback } from "./useHasSubmittedFeedback";
