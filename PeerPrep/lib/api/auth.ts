@@ -52,7 +52,7 @@ export async function signUp(
     const user: User = {
       id: authData.user.id,
       email: profile.email,
-      name: profile.display_name,
+      display_name: profile.display_name,
       avatar_url: profile.avatar_url,
       created_at: authData.user.created_at,
     };
@@ -102,7 +102,7 @@ export async function signIn(
     const user: User = {
       id: authData.user.id,
       email: profile.email,
-      name: profile.display_name,
+      display_name: profile.display_name,
       avatar_url: profile.avatar_url,
       created_at: authData.user.created_at,
     };
@@ -144,7 +144,7 @@ export async function getCurrentUser(): Promise<User | null> {
     return {
       id: authUser.id,
       email: profile.email,
-      name: profile.display_name,
+      display_name: profile.display_name,
       avatar_url: profile.avatar_url,
       created_at: authUser.created_at,
     };
