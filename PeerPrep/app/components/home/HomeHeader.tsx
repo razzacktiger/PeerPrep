@@ -39,7 +39,7 @@ export default function HomeHeader({ stats, paddingTop }: HomeHeaderProps) {
             </View>
             <View>
               <Text style={styles.welcomeText}>Welcome back</Text>
-              <Text style={styles.userName}>{user?.name || "User"} 👋</Text>
+              <Text style={styles.userName}>{user?.display_name || "User"} 👋</Text>
             </View>
           </View>
         </View>

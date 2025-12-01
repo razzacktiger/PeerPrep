@@ -6,16 +6,28 @@
 export interface User {
   id: string;
   email: string;
-  name: string;
+  display_name: string;
   avatar_url?: string;
   created_at: string;
 }
 
 export interface UserProfile extends User {
+  bio?: string;
   streak_days: number;
   total_sessions: number;
   avg_peer_score: number;
   preferred_topics: string[];
+  updated_at: string;
+}
+
+export interface UserPreferences {
+  user_id: string;
+  push_notifications: boolean;
+  email_notifications: boolean;
+  session_reminders: boolean;
+  match_updates: boolean;
+  auto_match_on_preferences: boolean;
+  dark_mode: boolean;
 }
 
 // Topic Types
