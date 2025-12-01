@@ -171,13 +171,13 @@ export default function SessionScreen() {
             console.log("⚠️ Partner ended the session");
             Alert.alert(
               "Session Ended",
-              "Your partner has ended the session.",
+              "Your partner has ended the session. Please provide feedback.",
               [
                 {
                   text: "OK",
                   onPress: () => {
-                    setCurrentSession(null);
-                    router.replace("/(app)/home");
+                    // DON'T clear session - feedback screen needs it
+                    router.replace("/(app)/session/feedback");
                   },
                 },
               ]
@@ -242,12 +242,12 @@ export default function SessionScreen() {
     // End the session in database
     if (currentSession) {
       await sessionsApi.endSession(currentSession.id);
-      // Clear the current session from store
-      setCurrentSession(null);
+      // DON'T clear the session yet - feedback screen needs it
+      // Session will be cleared after feedback submission or skip
     }
 
-    // Navigate to feedback (or home if feedback not ready)
-    router.replace("/(app)/home"); // Change to feedback when ready
+    // Navigate to feedback screen
+    router.replace("/(app)/session/feedback");
   };
 
   // Store session ID in a ref to avoid recreating callbacks
