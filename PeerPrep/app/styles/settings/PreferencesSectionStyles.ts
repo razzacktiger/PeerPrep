@@ -74,4 +74,9 @@ export default StyleSheet.create({
     backgroundColor: "#F1F5F9",
     marginVertical: 4,
   },
+  comingSoonText: {
+    fontSize: 14,
+    color: "#64748B",
+    lineHeight: 20,
+  },
 });
