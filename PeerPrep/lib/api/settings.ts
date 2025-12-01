@@ -20,10 +20,6 @@ export interface UserProfile {
 export interface UserPreferences {
   user_id: string;
   push_notifications: boolean;
-  email_notifications: boolean;
-  session_reminders: boolean;
-  match_updates: boolean;
-  auto_match_on_preferences: boolean;
   dark_mode: boolean;
 }
 
@@ -101,10 +97,6 @@ export async function getUserPreferences(userId: string): Promise<ApiResponse<Us
     const preferences: UserPreferences = {
       user_id: userId,
       push_notifications: skills.push_notifications ?? true,
-      email_notifications: skills.email_notifications ?? false,
-      session_reminders: skills.session_reminders ?? true,
-      match_updates: skills.match_updates ?? true,
-      auto_match_on_preferences: skills.auto_match_on_preferences ?? false,
       dark_mode: skills.dark_mode ?? false,
     };
 
@@ -141,10 +133,6 @@ export async function updateUserPreferences(
       .update({
         skills: {
           push_notifications: updatedPreferences.push_notifications,
-          email_notifications: updatedPreferences.email_notifications,
-          session_reminders: updatedPreferences.session_reminders,
-          match_updates: updatedPreferences.match_updates,
-          auto_match_on_preferences: updatedPreferences.auto_match_on_preferences,
           dark_mode: updatedPreferences.dark_mode,
         },
         updated_at: new Date().toISOString(),
@@ -161,10 +149,6 @@ export async function updateUserPreferences(
       data: {
         user_id: userId,
         push_notifications: skills.push_notifications ?? true,
-        email_notifications: skills.email_notifications ?? false,
-        session_reminders: skills.session_reminders ?? true,
-        match_updates: skills.match_updates ?? true,
-        auto_match_on_preferences: skills.auto_match_on_preferences ?? false,
         dark_mode: skills.dark_mode ?? false,
       },
     };
@@ -214,36 +198,5 @@ export async function deleteAccount(userId: string): Promise<ApiResponse<void>> 
   } catch (error: any) {
     console.error('Error deleting account:', error);
     return { error: error.message || 'Failed to delete account' };
-  }
-}
-
-/**
- * Upload avatar image
- * Note: Requires Supabase Storage bucket setup
- */
-export async function uploadAvatar(
-  userId: string,
-  fileUri: string
-): Promise<ApiResponse<string>> {
-  try {
-    // For Phase 1, we'll return a placeholder
-    // In production, implement actual file upload to Supabase Storage
-    console.log('Avatar upload not implemented yet:', fileUri);
-    return { error: 'Avatar upload coming in Phase 2' };
-
-    // Future implementation:
-    // const file = await fetch(fileUri).then(r => r.blob());
-    // const fileName = `${userId}_${Date.now()}.jpg`;
-    // const { data, error } = await supabase.storage
-    //   .from('avatars')
-    //   .upload(fileName, file);
-    // if (error) throw error;
-    // const { data: { publicUrl } } = supabase.storage
-    //   .from('avatars')
-    //   .getPublicUrl(fileName);
-    // return { data: publicUrl };
-  } catch (error: any) {
-    console.error('Error uploading avatar:', error);
-    return { error: error.message || 'Failed to upload avatar' };
   }
 }
