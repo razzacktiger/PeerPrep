@@ -29,6 +29,7 @@ export default function SessionScreen() {
   const router = useRouter();
   const {
     currentSession,
+    setCurrentSession,
     sessionNotes,
     updateNotes,
     timerSeconds,
@@ -89,6 +90,8 @@ export default function SessionScreen() {
     // End the session in database
     if (currentSession) {
       await sessionsApi.endSession(currentSession.id);
+      // Clear the current session from store
+      setCurrentSession(null);
     }
 
     router.push("/(app)/session/feedback");
@@ -129,7 +132,7 @@ export default function SessionScreen() {
       contentContainerStyle={sessionStyles.scrollContent}
     >
       <SessionQuestion question={currentSession.question!} />
-
+      
       {/* Recording Toggle */}
       <View style={sessionStyles.recordingCard}>
         <View style={sessionStyles.recordingRow}>

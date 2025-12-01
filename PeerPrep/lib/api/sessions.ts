@@ -20,6 +20,16 @@ export async function endSession(
   sessionId: string
 ): Promise<ApiResponse<{ success: boolean }>> {
   try {
+    // Get current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { error: "User not authenticated" };
+    }
+
+    // Update session status to completed
     const { error } = await supabase
       .from("sessions")
       .update({
@@ -31,6 +41,11 @@ export async function endSession(
     if (error) {
       return { error: error.message };
     }
+
+    // Remove user from queue (cleanup in case they're still there)
+    await supabase.from("matchmaking_queue").delete().eq("profile_id", user.id);
+
+    console.log("✅ Session ended and user removed from queue");
 
     return { data: { success: true } };
   } catch (error: any) {

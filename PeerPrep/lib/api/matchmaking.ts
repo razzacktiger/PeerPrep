@@ -83,7 +83,7 @@ export async function joinQueue(
     const { data: matchData, error: functionError } =
       await supabase.functions.invoke("matchmaking", {
         body: {
-          topic_id: topicId,
+      topic_id: topicId,
           user_id: user.id,
         },
       });
@@ -183,9 +183,10 @@ export async function checkQueueStatus(): Promise<
       // User no longer in queue - check if session was created
       const { data: session, error: sessionError } = await supabase
         .from("sessions")
-        .select("id, topic_id, host_id, guest_id, topics(name)")
+        .select("id, topic_id, host_id, guest_id, topics(name), ended_at")
         .or(`host_id.eq.${user.id},guest_id.eq.${user.id}`)
-        .eq("status", "active") // Only look for active sessions, not pending
+        .eq("status", "active") // Only look for active sessions
+        .is("ended_at", null) // Session must not be ended
         .order("created_at", { ascending: false })
         .limit(1)
         .single();
@@ -289,12 +290,12 @@ export async function scheduleSession(
       return { error: error.message };
     }
 
-    return {
-      data: {
-        success: true,
+  return {
+    data: {
+      success: true,
         sessionId: data.id,
-      },
-    };
+    },
+  };
   } catch (error: any) {
     return { error: error.message || "Failed to schedule session" };
   }
