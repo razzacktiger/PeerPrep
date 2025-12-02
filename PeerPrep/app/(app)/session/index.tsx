@@ -16,6 +16,7 @@ import {
   useWindowDimensions,
   StatusBar,
   Alert,
+  BackHandler,
 } from "react-native";
 import { Text, Button } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -96,6 +97,33 @@ export default function SessionScreen() {
 
   // Track if current user ended the session (to prevent showing alert to self)
   const userEndedSessionRef = useRef(false);
+
+  // Prevent back navigation during active session
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (currentSession) {
+          Alert.alert(
+            'End Session?',
+            'Are you sure you want to leave? The session is still active.',
+            [
+              { text: 'Stay', style: 'cancel' },
+              {
+                text: 'End Session',
+                style: 'destructive',
+                onPress: () => setShowEndDialog(true),
+              },
+            ]
+          );
+          return true; // Prevent default back behavior
+        }
+        return false; // Allow back if no session
+      }
+    );
+
+    return () => backHandler.remove();
+  }, [currentSession]);
 
   // Debounce timers
   const codeDebounceRef = useRef<NodeJS.Timeout | null>(null);
