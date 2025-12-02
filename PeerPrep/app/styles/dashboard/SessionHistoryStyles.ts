@@ -97,4 +97,25 @@ export default StyleSheet.create({
     flexDirection: "row",
     gap: 2,
   },
+  loadMoreButton: {
+    marginTop: 16,
+    backgroundColor: "#F3F4F6",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadMoreButtonPressed: {
+    backgroundColor: "#E5E7EB",
+  },
+  loadMoreContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  loadMoreText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#8B5CF6",
+  },
 });
