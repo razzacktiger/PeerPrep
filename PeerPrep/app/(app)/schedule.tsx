@@ -63,7 +63,7 @@ export default function ScheduleScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-        <ScheduleHeader />
+        <ScheduleHeader paddingTop={insets.top + 32} />
 
         <View style={styles.content}>
           {/* Session Details */}
@@ -130,6 +130,9 @@ export default function ScheduleScreen() {
             onPress={handleSchedule}
             activeOpacity={0.8}
             style={{ marginTop: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel="Schedule Session"
+            accessibilityHint="Confirm and schedule your practice session"
           >
             <LinearGradient
               colors={["#9333EA", "#2563EB"]}

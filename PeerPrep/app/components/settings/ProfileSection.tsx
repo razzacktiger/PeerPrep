@@ -119,6 +119,9 @@ export default function ProfileSection({
             style={styles.changeAvatarButton}
             onPress={handleAvatarUpload}
             disabled={isUploadingAvatar}
+            accessibilityRole="button"
+            accessibilityLabel="Change avatar"
+            accessibilityHint="Select and upload a new profile picture"
           >
             <MaterialCommunityIcons name="camera" size={16} color="#6366F1" />
             <Text style={styles.changeAvatarText}>
@@ -171,6 +174,10 @@ export default function ProfileSection({
           activeOpacity={0.8}
           style={styles.saveButton}
           disabled={isSaving || !hasChanges}
+          accessibilityRole="button"
+          accessibilityLabel={isSaving ? 'Saving changes' : hasChanges ? 'Save profile changes' : 'No changes to save'}
+          accessibilityHint="Save your profile information updates"
+          accessibilityState={{ disabled: isSaving || !hasChanges }}
         >
           <LinearGradient
             colors={isSaving || !hasChanges ? ['#9CA3AF', '#9CA3AF'] : GRADIENTS.PRIMARY}

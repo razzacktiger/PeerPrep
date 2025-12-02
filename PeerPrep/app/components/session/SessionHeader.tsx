@@ -58,18 +58,27 @@ export default function SessionHeader({
             <TouchableOpacity
               style={styles.mediaButton}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Toggle microphone"
+              accessibilityHint="Mute or unmute your microphone"
             >
               <MaterialCommunityIcons name="microphone" size={16} color="#FFFFFF" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.mediaButton}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Toggle video"
+              accessibilityHint="Turn your camera on or off"
             >
               <MaterialCommunityIcons name="video" size={16} color="#FFFFFF" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.mediaButton}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Open chat"
+              accessibilityHint="Send a message to your partner"
             >
               <MaterialCommunityIcons name="message-text" size={16} color="#FFFFFF" />
             </TouchableOpacity>
@@ -81,6 +90,8 @@ export default function SessionHeader({
             style={styles.endButton}
             labelStyle={styles.endButtonLabel}
             buttonColor="#EF4444"
+            accessibilityLabel="End session"
+            accessibilityHint="End the current practice session"
           >
             End
           </Button>

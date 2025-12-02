@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 14,
-    color: "#bfdbfe",
+    color: "#E0E7FF",
   },
   userName: {
     fontSize: 18,
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: "#bfdbfe",
+    color: "#E0E7FF",
   },
 });
 
