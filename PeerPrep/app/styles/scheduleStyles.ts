@@ -56,6 +56,9 @@ export default StyleSheet.create({
     shadowRadius: 4,
     marginTop: 8,
   },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
   scheduleButtonText: {
     fontSize: 18,
     fontWeight: "600",

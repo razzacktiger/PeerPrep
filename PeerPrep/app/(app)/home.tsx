@@ -2,15 +2,68 @@ import React from "react";
 import { View, ScrollView, StyleSheet, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHomeStats } from "../../lib/hooks/useHomeStats";
+import { useScheduledSessions } from "../../lib/hooks/useScheduledSessions";
+import { useScheduleInvites } from "../../lib/hooks/useScheduleInvites";
+import { useScheduleNotifications } from "../../lib/hooks/useScheduleNotifications";
+import { useNotificationHandler, requestNotificationPermissions } from "../../lib/utils/notificationService";
 import HomeHeader from "../components/home/HomeHeader";
 import WeeklyThemeCard from "../components/home/WeeklyThemeCard";
 import QuickActions from "../components/home/QuickActions";
 import UpcomingSessions from "../components/home/UpcomingSessions";
+import ScheduledSessionsCard from "../components/home/ScheduledSessionsCard";
+import ReceivedInvitesCard from "../components/home/ReceivedInvitesCard";
 import RecentActivity from "../components/home/RecentActivity";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { quickStats, recentSessions, practiceFocus, upcomingSessions, loading, refreshStats } = useHomeStats();
+  const { 
+    upcomingSessions: scheduledSessions, 
+    isUpcomingLoading,
+    confirmSession,
+    cancelSession,
+    isConfirming,
+    isCancelling,
+    refetch: refetchScheduled,
+  } = useScheduledSessions();
+  const {
+    receivedInvites,
+    isReceivedLoading,
+    acceptInvite,
+    declineInvite,
+    isAccepting,
+    isDeclining,
+    refetch: refetchInvites,
+  } = useScheduleInvites();
+  const {
+    scheduleInviteAcceptedNotification,
+    scheduleInviteDeclinedNotification,
+    scheduleSessionReminder,
+  } = useScheduleNotifications();
+
+  // Request notification permissions on mount
+  React.useEffect(() => {
+    requestNotificationPermissions();
+  }, []);
+
+  // Setup notification handlers
+  useNotificationHandler(
+    (notification) => {
+      console.log("📲 Notification received:", notification);
+      // Handle foreground notification logic here if needed
+    },
+    (response) => {
+      console.log("👆 Notification tapped:", response);
+      const data = response.notification.request.content.data;
+      
+      // Navigate based on notification action
+      if (data.action === "open_invites") {
+        // Could navigate to invites tab/screen
+      } else if (data.action === "open_scheduled") {
+        // Could navigate to scheduled sessions
+      }
+    }
+  );
 
   // Transform recent sessions for RecentActivity component
   const recentActivities = recentSessions.map(session => ({
@@ -20,6 +73,49 @@ export default function HomeScreen() {
     date: formatDate(session.date),
   }));
 
+  const handleAcceptInvite = async (inviteId: string) => {
+    try {
+      // Find the invite to get details for notification
+      const invite = receivedInvites.find(inv => inv.id === inviteId);
+      if (invite?.profiles?.display_name) {
+        const time = new Date(invite.scheduled_for).toLocaleTimeString(
+          "default",
+          { hour: "2-digit", minute: "2-digit", hour12: true }
+        );
+        await scheduleInviteAcceptedNotification(
+          invite.profiles.display_name,
+          invite.topic_name || "Practice",
+          time
+        );
+      }
+      await acceptInvite(inviteId);
+    } catch (error) {
+      console.error("Error accepting invite:", error);
+    }
+  };
+
+  const handleDeclineInvite = async (inviteId: string) => {
+    try {
+      // Find the invite to get details for notification
+      const invite = receivedInvites.find(inv => inv.id === inviteId);
+      if (invite?.profiles?.display_name) {
+        await scheduleInviteDeclinedNotification(
+          invite.profiles.display_name,
+          invite.topic_name || "Practice"
+        );
+      }
+      await declineInvite(inviteId);
+    } catch (error) {
+      console.error("Error declining invite:", error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    await refreshStats();
+    await refetchScheduled();
+    await refetchInvites();
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -27,7 +123,7 @@ export default function HomeScreen() {
         refreshControl={
           <RefreshControl
             refreshing={loading}
-            onRefresh={refreshStats}
+            onRefresh={handleRefresh}
             tintColor="#8B5CF6"
             colors={["#8B5CF6"]}
           />
@@ -38,7 +134,32 @@ export default function HomeScreen() {
         <View style={styles.mainContent}>
           <WeeklyThemeCard focus={practiceFocus} />
           <QuickActions />
-          <UpcomingSessions sessions={upcomingSessions} />
+          
+          {/* Received Invites */}
+          {receivedInvites && receivedInvites.length > 0 && (
+            <ReceivedInvitesCard
+              invites={receivedInvites}
+              isLoading={isReceivedLoading}
+              onAccept={handleAcceptInvite}
+              onDecline={handleDeclineInvite}
+              isAccepting={isAccepting}
+              isDeclining={isDeclining}
+            />
+          )}
+          
+          {/* Scheduled Sessions */}
+          {scheduledSessions && scheduledSessions.length > 0 && (
+            <ScheduledSessionsCard
+              sessions={scheduledSessions}
+              isLoading={isUpcomingLoading}
+              onConfirm={confirmSession}
+              onCancel={cancelSession}
+              isConfirming={isConfirming}
+              isCancelling={isCancelling}
+            />
+          )}
+          
+          <UpcomingSessions sessions={scheduledSessions || []} />
           {recentActivities.length > 0 && (
             <RecentActivity activities={recentActivities} />
           )}

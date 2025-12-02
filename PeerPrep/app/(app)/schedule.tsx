@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, ScrollView, TouchableOpacity, Text, StatusBar } from "react-native";
+import React, { useEffect } from "react";
+import { View, ScrollView, TouchableOpacity, Text, StatusBar, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -10,6 +10,7 @@ import DatePicker from "../components/schedule/DatePicker";
 import TimeSlotPicker from "../components/schedule/TimeSlotPicker";
 import SessionSummary from "../components/schedule/SessionSummary";
 import SuccessModal from "../components/schedule/SuccessModal";
+import { useScheduleSession } from "../../lib/hooks";
 import { TOPICS } from "../../lib/constants";
 import styles from "../styles/scheduleStyles";
 
@@ -17,47 +18,59 @@ export default function ScheduleScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
+  const [showSuccess, setShowSuccess] = React.useState(false);
 
-  const [selectedTopic, setSelectedTopic] = useState("");
-  const [difficulty, setDifficulty] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
-  const [time, setTime] = useState("");
-  const [duration, setDuration] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
+  // Use the schedule hook
+  const {
+    formState,
+    updateField,
+    isSubmitting,
+    error,
+    success,
+    scheduleSession,
+    getValidationError,
+  } = useScheduleSession();
 
   const durations = ["30 minutes", "45 minutes", "60 minutes"];
 
   useEffect(() => {
     if (params.topicId) {
-      setSelectedTopic(params.topicId as string);
+      updateField("topicId", params.topicId as string);
     }
     if (params.difficulty) {
-      setDifficulty(params.difficulty as string);
+      updateField("difficulty", params.difficulty as string);
     }
-  }, [params]);
+  }, [params, updateField]);
 
-  const handleSchedule = () => {
-    if (!selectedTopic || !difficulty) {
-      alert("Please select a topic and difficulty");
-      return;
-    }
-    if (!time) {
-      alert("Please select a time");
-      return;
-    }
-    if (!duration) {
-      alert("Please select a duration");
+  const handleSchedule = async () => {
+    console.log("📅 Schedule button pressed...");
+    
+    // Validate form
+    const validationError = getValidationError();
+    if (validationError) {
+      Alert.alert("Validation Error", validationError);
       return;
     }
 
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      router.replace("/(app)/home");
-    }, 2000);
+    // Submit to API
+    await scheduleSession();
   };
 
-  const topicName = TOPICS.find((t) => t.id === selectedTopic)?.name || "";
+  // Handle success redirect
+  useEffect(() => {
+    if (success) {
+      console.log("🎉 Session scheduled successfully!");
+      setShowSuccess(true);
+    }
+  }, [success]);
+
+  const handleSuccessDismiss = () => {
+    console.log("🏠 Redirecting to home...");
+    setShowSuccess(false);
+    router.replace("/(app)/home");
+  };
+
+  const topicName = TOPICS.find((t) => t.id === formState.topicId)?.name || "";
 
   return (
     <View style={styles.container}>
@@ -66,6 +79,23 @@ export default function ScheduleScreen() {
         <ScheduleHeader />
 
         <View style={styles.content}>
+          {/* Error Message */}
+          {error && (
+            <View
+              style={{
+                backgroundColor: "#FEE2E2",
+                borderRadius: 8,
+                padding: 12,
+                marginHorizontal: 16,
+                marginBottom: 16,
+                borderLeftWidth: 4,
+                borderLeftColor: "#DC2626",
+              }}
+            >
+              <Text style={{ color: "#991B1B", fontSize: 14 }}>{error}</Text>
+            </View>
+          )}
+
           {/* Session Details */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Session Details</Text>
@@ -73,8 +103,8 @@ export default function ScheduleScreen() {
             <Text style={styles.fieldLabel}>Topic</Text>
             <View style={styles.picker}>
               <Picker
-                selectedValue={selectedTopic}
-                onValueChange={setSelectedTopic}
+                selectedValue={formState.topicId}
+                onValueChange={(value) => updateField("topicId", value)}
               >
                 <Picker.Item label="Select a topic" value="" />
                 {TOPICS.map((topic) => (
@@ -86,8 +116,8 @@ export default function ScheduleScreen() {
             <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Difficulty Level</Text>
             <View style={styles.picker}>
               <Picker
-                selectedValue={difficulty}
-                onValueChange={setDifficulty}
+                selectedValue={formState.difficulty}
+                onValueChange={(value) => updateField("difficulty", value)}
               >
                 <Picker.Item label="Select difficulty" value="" />
                 <Picker.Item label="Easy" value="Easy" />
@@ -99,8 +129,8 @@ export default function ScheduleScreen() {
             <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Duration</Text>
             <View style={styles.picker}>
               <Picker
-                selectedValue={duration}
-                onValueChange={setDuration}
+                selectedValue={formState.duration}
+                onValueChange={(value) => updateField("duration", value)}
               >
                 <Picker.Item label="Select duration" value="" />
                 {durations.map((dur) => (
@@ -111,25 +141,26 @@ export default function ScheduleScreen() {
           </View>
 
           {/* Date Selection */}
-          <DatePicker selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+          <DatePicker selectedDate={formState.date} onDateSelect={(date) => updateField("date", date)} />
 
           {/* Time Selection */}
-          <TimeSlotPicker selectedTime={time} onTimeSelect={setTime} />
+          <TimeSlotPicker selectedTime={formState.time} onTimeSelect={(time) => updateField("time", time)} />
 
           {/* Summary */}
           <SessionSummary
             topic={topicName}
-            difficulty={difficulty}
-            date={selectedDate}
-            time={time}
-            duration={duration}
+            difficulty={formState.difficulty}
+            date={formState.date}
+            time={formState.time}
+            duration={formState.duration}
           />
 
           {/* Schedule Button */}
           <TouchableOpacity
             onPress={handleSchedule}
+            disabled={isSubmitting}
             activeOpacity={0.8}
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 8, opacity: isSubmitting ? 0.6 : 1 }}
           >
             <LinearGradient
               colors={["#9333EA", "#2563EB"]}
@@ -139,14 +170,16 @@ export default function ScheduleScreen() {
             >
               <View style={styles.buttonContent}>
                 <MaterialCommunityIcons name="calendar-check" size={20} color="#FFFFFF" />
-                <Text style={styles.scheduleButtonText}>Schedule Session</Text>
+                <Text style={styles.scheduleButtonText}>
+                  {isSubmitting ? "Scheduling..." : "Schedule Session"}
+                </Text>
               </View>
             </LinearGradient>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
-      <SuccessModal visible={showSuccess} />
+      <SuccessModal visible={showSuccess} onDismiss={handleSuccessDismiss} />
     </View>
   );
 }

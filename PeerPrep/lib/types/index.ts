@@ -96,12 +96,26 @@ export interface MatchmakingRequest {
 
 export interface ScheduledSession {
   id: string;
+  creator_id: string;
   topic_id: string;
-  topic_name: string;
+  topic_name?: string;
+  icon?: string;
   scheduled_for: string;
   partner_id?: string;
   partner_name?: string;
-  status: "pending" | "confirmed" | "cancelled";
+  session_id?: string;
+  status: "pending" | "confirmed" | "cancelled" | "declined" | "withdrawn";
+  difficulty?: "Easy" | "Medium" | "Hard";
+  duration_minutes?: number;
+  created_at?: string;
+  topics?: {
+    name: any;
+    icon: any;
+  };
+  profiles?: {
+    display_name: any;
+    avatar_url?: any;
+  };
 }
 
 // API Response Types

@@ -46,5 +46,19 @@ export default StyleSheet.create({
     color: "#6B7280",
     textAlign: "center",
     lineHeight: 24,
+    marginBottom: 24,
+  },
+  button: {
+    backgroundColor: "#10B981",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    minWidth: 150,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    textAlign: "center",
   },
 });

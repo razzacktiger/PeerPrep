@@ -80,6 +80,14 @@ export default function AppLayout() {
           href: null, // Hide from tabs
         }}
       />
+      <Tabs.Screen
+        name="my-sessions"
+        options={{
+          title: 'My Sessions',
+          headerShown: false,
+          href: null, // Hide from tabs
+        }}
+      />
     </Tabs>
     </StatsProvider>
   );
