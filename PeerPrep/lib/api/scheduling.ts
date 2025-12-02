@@ -5,6 +5,7 @@
 
 import { ApiResponse, ScheduledSession } from "../types";
 import { supabase } from "../supabase";
+import { autoMatchSession } from "./matching";
 
 /**
  * Create a new scheduled session
@@ -12,12 +13,16 @@ import { supabase } from "../supabase";
 export async function createScheduledSession(
   topicId: string,
   scheduledFor: string, // ISO timestamp
+  difficulty: "Easy" | "Medium" | "Hard" = "Medium",
+  durationMinutes: number = 60,
   partnerId?: string // Optional if scheduling solo
 ): Promise<ApiResponse<ScheduledSession>> {
   try {
     console.log("📅 Creating scheduled session...", {
       topicId,
       scheduledFor,
+      difficulty,
+      durationMinutes,
     });
 
     // Get current user
@@ -36,6 +41,8 @@ export async function createScheduledSession(
         creator_id: user.id,
         topic_id: topicId,
         scheduled_for: scheduledFor,
+        difficulty,
+        duration_minutes: durationMinutes,
         partner_id: partnerId || null,
         status: "pending",
       })
@@ -47,7 +54,28 @@ export async function createScheduledSession(
       return { error: error.message };
     }
 
-    console.log("✅ Scheduled session created:", scheduledSession);
+    console.log("✅ Scheduled session created:", {
+      id: scheduledSession?.id,
+      topic_id: scheduledSession?.topic_id,
+      scheduled_for: scheduledSession?.scheduled_for,
+      status: scheduledSession?.status,
+      creator_id: scheduledSession?.creator_id
+    });
+
+    // Try to auto-match with existing sessions
+    if (scheduledSession?.id) {
+      console.log("🔍 Attempting auto-match for new session:", scheduledSession.id);
+      const matchResult = await autoMatchSession(scheduledSession.id);
+      if (matchResult.data) {
+        console.log("🎯 Session auto-matched successfully with:", matchResult.data.id);
+        // Return the updated session with matched status
+        const updatedSession = { ...scheduledSession, status: "matched" as const };
+        return { data: updatedSession };
+      } else {
+        console.log("😐 No auto-match found for session:", scheduledSession.id);
+      }
+    }
+
     return { data: scheduledSession };
   } catch (error: any) {
     console.error("❌ createScheduledSession error:", error);
@@ -90,7 +118,11 @@ export async function getScheduledSessions(
           name,
           icon
         ),
-        profiles!creator_id (
+        creator_profile:profiles!creator_id (
+          display_name,
+          avatar_url
+        ),
+        partner_profile:profiles!partner_id (
           display_name,
           avatar_url
         )
@@ -112,7 +144,7 @@ export async function getScheduledSessions(
     }
 
     console.log("✅ Retrieved scheduled sessions:", sessions?.length || 0);
-    return { data: (sessions as ScheduledSession[]) || [] };
+    return { data: (sessions as unknown as ScheduledSession[]) || [] };
   } catch (error: any) {
     console.error("❌ getScheduledSessions error:", error);
     return { error: error.message || "Failed to fetch scheduled sessions" };
@@ -146,7 +178,11 @@ export async function getScheduleDetails(
           name,
           icon
         ),
-        profiles!creator_id (
+        creator_profile:profiles!creator_id (
+          display_name,
+          avatar_url
+        ),
+        partner_profile:profiles!partner_id (
           display_name,
           avatar_url
         )
@@ -161,7 +197,7 @@ export async function getScheduleDetails(
     }
 
     console.log("✅ Retrieved schedule details:", session?.id);
-    return { data: session as ScheduledSession };
+    return { data: session as unknown as ScheduledSession };
   } catch (error: any) {
     console.error("❌ getScheduleDetails error:", error);
     return { error: error.message || "Failed to fetch scheduled session" };
@@ -198,6 +234,79 @@ export async function confirmScheduledSession(
   } catch (error: any) {
     console.error("❌ confirmScheduledSession error:", error);
     return { error: error.message || "Failed to confirm scheduled session" };
+  }
+}
+
+/**
+ * Confirm a matched session (user accepts the match)
+ */
+export async function confirmMatchedSession(
+  scheduledSessionId: string
+): Promise<ApiResponse<ScheduledSession>> {
+  try {
+    console.log("✅ Confirming matched session:", scheduledSessionId);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { error: "User not authenticated" };
+    }
+
+    // Update session status to confirmed
+    const { data: session, error } = await supabase
+      .from("scheduled_sessions")
+      .update({ status: "confirmed" })
+      .eq("id", scheduledSessionId)
+      .or(`creator_id.eq.${user.id},partner_id.eq.${user.id}`) // Either user can confirm
+      .select()
+      .single();
+
+    if (error) {
+      console.error("❌ Error confirming matched session:", error.message);
+      return { error: error.message };
+    }
+
+    console.log("✅ Matched session confirmed:", session?.id);
+    return { data: session as ScheduledSession };
+  } catch (error: any) {
+    console.error("❌ confirmMatchedSession error:", error);
+    return { error: error.message || "Failed to confirm matched session" };
+  }
+}
+
+/**
+ * Decline a matched session (user rejects the match)
+ */
+export async function declineMatchedSession(
+  scheduledSessionId: string
+): Promise<ApiResponse<boolean>> {
+  try {
+    console.log("❌ Declining matched session:", scheduledSessionId);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { error: "User not authenticated" };
+    }
+
+    // Reset session back to pending and remove partner
+    const { error } = await supabase
+      .from("scheduled_sessions")
+      .update({ 
+        status: "pending",
+        partner_id: null 
+      })
+      .eq("id", scheduledSessionId)
+      .or(`creator_id.eq.${user.id},partner_id.eq.${user.id}`); // Either user can decline
+
+    if (error) {
+      console.error("❌ Error declining matched session:", error.message);
+      return { error: error.message };
+    }
+
+    console.log("✅ Matched session declined, reset to pending");
+    return { data: true };
+  } catch (error: any) {
+    console.error("❌ declineMatchedSession error:", error);
+    return { error: error.message || "Failed to decline matched session" };
   }
 }
 
@@ -272,7 +381,11 @@ export async function getUpcomingScheduledSessions(
           name,
           icon
         ),
-        profiles!creator_id (
+        creator_profile:profiles!creator_id (
+          display_name,
+          avatar_url
+        ),
+        partner_profile:profiles!partner_id (
           display_name,
           avatar_url
         )
@@ -290,7 +403,7 @@ export async function getUpcomingScheduledSessions(
     }
 
     console.log("✅ Retrieved upcoming scheduled sessions:", sessions?.length || 0);
-    return { data: (sessions as ScheduledSession[]) || [] };
+    return { data: (sessions as unknown as ScheduledSession[]) || [] };
   } catch (error: any) {
     console.error("❌ getUpcomingScheduledSessions error:", error);
     return { error: error.message || "Failed to fetch upcoming sessions" };
@@ -381,7 +494,7 @@ export async function getReceivedInvites(): Promise<ApiResponse<ScheduledSession
     }
 
     console.log("✅ Retrieved received invites:", invites?.length || 0);
-    return { data: (invites as ScheduledSession[]) || [] };
+    return { data: (invites as unknown as ScheduledSession[]) || [] };
   } catch (error: any) {
     console.error("❌ getReceivedInvites error:", error);
     return { error: error.message || "Failed to fetch received invites" };
@@ -436,7 +549,7 @@ export async function getSentInvites(): Promise<ApiResponse<ScheduledSession[]>>
     }
 
     console.log("✅ Retrieved sent invites:", invites?.length || 0);
-    return { data: (invites as ScheduledSession[]) || [] };
+    return { data: (invites as unknown as ScheduledSession[]) || [] };
   } catch (error: any) {
     console.error("❌ getSentInvites error:", error);
     return { error: error.message || "Failed to fetch sent invites" };

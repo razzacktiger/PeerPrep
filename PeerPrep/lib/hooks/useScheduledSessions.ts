@@ -8,6 +8,8 @@ import {
   getUpcomingScheduledSessions,
   confirmScheduledSession,
   cancelScheduledSession,
+  confirmMatchedSession,
+  declineMatchedSession,
 } from "../api/scheduling";
 import { ScheduledSession } from "../types";
 
@@ -108,8 +110,23 @@ export function useScheduledSessions(): UseScheduledSessionsReturn {
 
   const handleConfirmSession = async (sessionId: string) => {
     console.log("✅ Confirming session:", sessionId);
+    
+    // First, find the session to check its status
+    const session = allSessions.find(s => s.id === sessionId);
+    if (!session) {
+      throw new Error("Session not found");
+    }
+
     try {
-      const result = await confirmSessionAsync(sessionId);
+      let result;
+      if (session.status === "matched") {
+        // Use confirmMatchedSession for matched sessions
+        result = await confirmMatchedSession(sessionId);
+      } else {
+        // Use confirmScheduledSession for pending sessions
+        result = await confirmSessionAsync(sessionId);
+      }
+      
       if (result.error) {
         throw new Error(result.error);
       }
@@ -121,8 +138,23 @@ export function useScheduledSessions(): UseScheduledSessionsReturn {
 
   const handleCancelSession = async (sessionId: string) => {
     console.log("❌ Cancelling session:", sessionId);
+    
+    // First, find the session to check its status
+    const session = allSessions.find(s => s.id === sessionId);
+    if (!session) {
+      throw new Error("Session not found");
+    }
+
     try {
-      const result = await cancelSessionAsync(sessionId);
+      let result;
+      if (session.status === "matched") {
+        // Use declineMatchedSession for matched sessions
+        result = await declineMatchedSession(sessionId);
+      } else {
+        // Use cancelScheduledSession for other sessions
+        result = await cancelSessionAsync(sessionId);
+      }
+      
       if (result.error) {
         throw new Error(result.error);
       }

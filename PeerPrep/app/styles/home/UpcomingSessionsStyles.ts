@@ -67,6 +67,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  headerTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  refreshButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F0F8FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#007AFF',
+  },
+  refreshButtonDisabled: {
+    backgroundColor: '#F5F5F5',
+    borderColor: '#DDD',
+  },
+  refreshIconSpinning: {
+    // Add animation if needed
+  },
 });
 
 export default styles;

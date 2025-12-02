@@ -220,6 +220,8 @@ CREATE TABLE scheduled_sessions (
   creator_id uuid NOT NULL REFERENCES profiles(id),
   topic_id text NOT NULL REFERENCES topics(id),
   scheduled_for timestamptz NOT NULL,
+  difficulty text DEFAULT 'Medium',  -- 'Easy', 'Medium', 'Hard'
+  duration_minutes integer DEFAULT 60,  -- Session duration in minutes
   partner_id uuid REFERENCES profiles(id),  -- NULLABLE: can schedule without partner
   session_id uuid REFERENCES sessions(id),  -- NULLABLE: linked when session created
   status text DEFAULT 'pending',  -- 'pending', 'confirmed', 'cancelled'

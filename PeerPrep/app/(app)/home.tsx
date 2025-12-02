@@ -159,7 +159,13 @@ export default function HomeScreen() {
             />
           )}
           
-          <UpcomingSessions sessions={scheduledSessions || []} />
+          <UpcomingSessions 
+            sessions={scheduledSessions || []} 
+            onRefresh={() => {
+              refetchScheduled();
+              refreshStats();
+            }}
+          />
           {recentActivities.length > 0 && (
             <RecentActivity activities={recentActivities} />
           )}

@@ -1,11 +1,12 @@
-import React from "react";
-import { View, ScrollView, Text, StatusBar, RefreshControl, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, ScrollView, Text, StatusBar, RefreshControl, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useScheduledSessions } from "../../lib/hooks";
 import { StyleSheet } from "react-native";
+import { refreshAndFindMatches, debugSessionMatching } from "../../lib/api/matching";
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F9FAFB" },
@@ -15,6 +16,10 @@ const styles = StyleSheet.create({
   headerTextContainer: { flex: 1, marginLeft: 16 },
   headerTitle: { fontSize: 24, fontWeight: "bold", color: "#FFFFFF" },
   headerSubtitle: { fontSize: 14, color: "rgba(255, 255, 255, 0.8)", marginTop: 2 },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: 12 },
+  debugButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(255, 255, 255, 0.2)", justifyContent: "center", alignItems: "center" },
+  refreshButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255, 255, 255, 0.2)", justifyContent: "center", alignItems: "center" },
+  refreshButtonDisabled: { opacity: 0.5 },
   addButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255, 255, 255, 0.2)", justifyContent: "center", alignItems: "center" },
   content: { padding: 16, paddingBottom: 32 },
   errorContainer: { backgroundColor: "#FEF2F2", padding: 12, borderRadius: 8, flexDirection: "row", alignItems: "center", marginBottom: 16, borderWidth: 1, borderColor: "#FECACA" },
@@ -32,6 +37,7 @@ const styles = StyleSheet.create({
   statusBadge: { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 6 },
   confirmedBadge: { backgroundColor: "#D1FAE5" },
   pendingBadge: { backgroundColor: "#FEF3C7" },
+  matchedBadge: { backgroundColor: "#DBEAFE" },
   defaultBadge: { backgroundColor: "#F3F4F6" },
   statusText: { fontSize: 12, fontWeight: "600" },
   partnerInfo: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
@@ -53,6 +59,7 @@ const styles = StyleSheet.create({
 export default function MySessionsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   
   const {
     pendingSessions,
@@ -68,6 +75,48 @@ export default function MySessionsScreen() {
     confirmSession,
     cancelSession,
   } = useScheduledSessions();
+
+  const handleDebugMatching = async () => {
+    console.log("🔍 DEBUG: Checking session matching...");
+    const result = await debugSessionMatching();
+    if (result.data) {
+      Alert.alert(
+        "Debug Info",
+        `Found ${result.data.allPending?.length || 0} pending sessions. Check console for detailed info.`
+      );
+    } else {
+      Alert.alert("Debug Error", result.error || "Failed to get debug info");
+    }
+  };
+
+  const handleManualMatchRefresh = async () => {
+    setIsManualRefreshing(true);
+    try {
+      const result = await refreshAndFindMatches();
+      if (result.data) {
+        const { matchedCount } = result.data;
+        if (matchedCount > 0) {
+          Alert.alert(
+            "New Matches Found! 🎉",
+            `Found ${matchedCount} new match${matchedCount > 1 ? 'es' : ''} for your pending sessions!`,
+            [{ text: "Great!" }]
+          );
+          await refetch(); // Refresh the sessions data
+        } else {
+          Alert.alert(
+            "No New Matches",
+            "No new compatible sessions found. Keep your sessions active and try again later!"
+          );
+        }
+      } else {
+        Alert.alert("Error", result.error || "Failed to refresh matches");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to refresh matches");
+    } finally {
+      setIsManualRefreshing(false);
+    }
+  };
 
   const handleRefresh = async () => {
     await refetch();
@@ -91,33 +140,61 @@ export default function MySessionsScreen() {
     });
   };
 
-  const renderSessionCard = (session: any, showActions = false) => (
-    <View key={session.id} style={styles.sessionCard}>
-      <View style={styles.sessionHeader}>
-        <View style={styles.topicInfo}>
-          <Text style={styles.topicIcon}>{session.topics?.icon || "📚"}</Text>
-          <View style={styles.topicDetails}>
-            <Text style={styles.topicName}>{session.topics?.name || "Unknown Topic"}</Text>
-            <Text style={styles.sessionTime}>
-              {formatDate(session.scheduled_for)} • {formatTime(session.scheduled_for)}
+  const renderSessionCard = (session: any, showActions = false) => {
+    // Get current user ID to determine which profile to show as partner
+    const partnerProfile = session.partner_profile; // Always show partner_profile when available
+    
+    return (
+      <View key={session.id} style={styles.sessionCard}>
+        <View style={styles.sessionHeader}>
+          <View style={styles.topicInfo}>
+            <Text style={styles.topicIcon}>{session.topics?.icon || "📚"}</Text>
+            <View style={styles.topicDetails}>
+              <Text style={styles.topicName}>{session.topics?.name || "Unknown Topic"}</Text>
+              <Text style={styles.sessionTime}>
+                {formatDate(session.scheduled_for)} • {formatTime(session.scheduled_for)}
+              </Text>
+            </View>
+          </View>
+          <View style={[styles.statusBadge, 
+            session.status === "confirmed" ? styles.confirmedBadge :
+            session.status === "pending" ? styles.pendingBadge :
+            session.status === "matched" ? styles.matchedBadge : styles.defaultBadge
+          ]}>
+            <Text style={styles.statusText}>
+              {session.status === "confirmed" ? "Confirmed" : 
+               session.status === "pending" ? "Pending" :
+               session.status === "matched" ? "Matched" : session.status}
             </Text>
           </View>
         </View>
-        <View style={[styles.statusBadge, 
-          session.status === "confirmed" ? styles.confirmedBadge :
-          session.status === "pending" ? styles.pendingBadge : styles.defaultBadge
-        ]}>
-          <Text style={styles.statusText}>
-            {session.status === "confirmed" ? "Confirmed" : 
-             session.status === "pending" ? "Pending" : session.status}
-          </Text>
-        </View>
-      </View>
 
-      {session.profiles?.display_name && (
-        <View style={styles.partnerInfo}>
-          <MaterialCommunityIcons name="account" size={16} color="#6B7280" />
-          <Text style={styles.partnerName}>Partner: {session.profiles.display_name}</Text>
+        {session.partner_id && partnerProfile?.display_name && (
+          <View style={styles.partnerInfo}>
+            <MaterialCommunityIcons name="account" size={16} color="#6B7280" />
+            <Text style={styles.partnerName}>
+              {session.status === 'matched' ? 'Matched with: ' : 'Partner: '}{partnerProfile.display_name}
+            </Text>
+          </View>
+        )}
+
+      {showActions && session.status === "matched" && (
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.confirmButton]}
+            onPress={() => confirmSession(session.id)}
+          >
+            <MaterialCommunityIcons name="check" size={16} color="#FFFFFF" />
+            <Text style={styles.confirmButtonText}>Accept Match</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.actionButton, styles.cancelButton]}
+            onPress={() => cancelSession(session.id)}
+          >
+            <MaterialCommunityIcons name="close" size={16} color="#EF4444" />
+            <Text style={styles.cancelButtonText}>Decline</Text>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -142,6 +219,7 @@ export default function MySessionsScreen() {
       )}
     </View>
   );
+}
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -167,12 +245,33 @@ export default function MySessionsScreen() {
             <Text style={styles.headerSubtitle}>Upcoming & Pending Sessions</Text>
           </View>
           
-          <TouchableOpacity
-            onPress={() => router.push("/(app)/schedule")}
-            style={styles.addButton}
-          >
-            <MaterialCommunityIcons name="plus" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              onPress={handleDebugMatching}
+              style={styles.debugButton}
+            >
+              <MaterialCommunityIcons name="bug" size={18} color="#FF6B35" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              onPress={handleManualMatchRefresh}
+              style={[styles.refreshButton, isManualRefreshing && styles.refreshButtonDisabled]}
+              disabled={isManualRefreshing}
+            >
+              <MaterialCommunityIcons 
+                name="refresh" 
+                size={20} 
+                color={isManualRefreshing ? "rgba(255,255,255,0.5)" : "#FFFFFF"} 
+              />
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              onPress={() => router.push("/(app)/schedule")}
+              style={styles.addButton}
+            >
+              <MaterialCommunityIcons name="plus" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
         </View>
       </LinearGradient>
 
@@ -193,6 +292,21 @@ export default function MySessionsScreen() {
             <Text style={styles.errorText}>
               {pendingError || confirmedError || upcomingError}
             </Text>
+          </View>
+        )}
+
+        {/* Matched Sessions (waiting for acceptance) */}
+        {upcomingSessions.filter(session => session.status === 'matched').length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              Matched Sessions ({upcomingSessions.filter(session => session.status === 'matched').length})
+            </Text>
+            <Text style={styles.sectionSubtitle}>
+              Sessions matched with other users - accept or decline
+            </Text>
+            {upcomingSessions
+              .filter(session => session.status === 'matched')
+              .map((session) => renderSessionCard(session, true))}
           </View>
         )}
 

@@ -125,7 +125,9 @@ export function useScheduleSession(): UseScheduleSessionReturn {
 
       const result = await createScheduledSession(
         formState.topicId,
-        scheduledFor
+        scheduledFor,
+        formState.difficulty as "Easy" | "Medium" | "Hard",
+        getDurationMinutes()
       );
 
       if (result.error) {

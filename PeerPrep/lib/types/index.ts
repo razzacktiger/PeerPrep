@@ -104,7 +104,7 @@ export interface ScheduledSession {
   partner_id?: string;
   partner_name?: string;
   session_id?: string;
-  status: "pending" | "confirmed" | "cancelled" | "declined" | "withdrawn";
+  status: "pending" | "matched" | "confirmed" | "cancelled" | "declined" | "withdrawn";
   difficulty?: "Easy" | "Medium" | "Hard";
   duration_minutes?: number;
   created_at?: string;
@@ -113,6 +113,14 @@ export interface ScheduledSession {
     icon: any;
   };
   profiles?: {
+    display_name: any;
+    avatar_url?: any;
+  };
+  creator_profile?: {
+    display_name: any;
+    avatar_url?: any;
+  };
+  partner_profile?: {
     display_name: any;
     avatar_url?: any;
   };
