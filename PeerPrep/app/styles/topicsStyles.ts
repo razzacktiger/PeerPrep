@@ -6,7 +6,7 @@ export default StyleSheet.create({
     backgroundColor: "#F9FAFB",
   },
   headerGradient: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     paddingTop: 32,
     paddingBottom: 32,
     borderBottomLeftRadius: 48,
@@ -25,7 +25,7 @@ export default StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: "#BFDBFE",
+    color: "#E0E7FF",
     marginBottom: 24,
   },
   contentContainer: {

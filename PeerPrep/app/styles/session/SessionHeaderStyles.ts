@@ -66,7 +66,7 @@ export default StyleSheet.create({
   },
   topicName: {
     fontSize: 12,
-    color: "#BFDBFE",
+    color: "#E0E7FF",
   },
   timerContainer: {
     flexDirection: "row",

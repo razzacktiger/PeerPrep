@@ -30,6 +30,7 @@ export interface UseSettingsReturn {
   
   // Actions
   updateProfile: (updates: settingsApi.ProfileUpdateData) => Promise<boolean>;
+  updateAvatar: (avatarUrl: string) => Promise<void>;
   updatePreference: (key: keyof Omit<settingsApi.UserPreferences, 'user_id'>, value: boolean) => Promise<boolean>;
   refreshSettings: () => Promise<void>;
   clearSaveStatus: () => void;
@@ -134,6 +135,16 @@ export function useSettings(): UseSettingsReturn {
             },
           });
         }
+        
+        // Update auth store if avatar_url changed
+        if (updates.avatar_url !== undefined) {
+          useAuthStore.setState({
+            user: {
+              ...user,
+              avatar_url: updates.avatar_url,
+            },
+          });
+        }
       }
       
       setSaveSuccess(true);
@@ -144,6 +155,33 @@ export function useSettings(): UseSettingsReturn {
       return false;
     } finally {
       setIsSaving(false);
+    }
+  }
+  
+  async function updateAvatar(avatarUrl: string): Promise<void> {
+    if (!user?.id) return;
+    
+    try {
+      const result = await settingsApi.updateUserProfile(user.id, { avatar_url: avatarUrl });
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      if (result.data) {
+        setProfile(result.data);
+        setAvatarUrl(result.data.avatar_url || null);
+        
+        // Update auth store
+        useAuthStore.setState({
+          user: {
+            ...user,
+            avatar_url: avatarUrl,
+          },
+        });
+      }
+    } catch (err: any) {
+      throw new Error(err.message || 'Failed to update avatar');
     }
   }
   
@@ -224,6 +262,7 @@ export function useSettings(): UseSettingsReturn {
     
     // Actions
     updateProfile,
+    updateAvatar,
     updatePreference,
     refreshSettings,
     clearSaveStatus,

@@ -355,7 +355,7 @@ function formatRecentSessions(
       topic: topicMap[session.topic_id] || 'Unknown Topic',
       difficulty,
       rating: Math.round(rating),
-      date: new Date(session.created_at).toISOString().split('T')[0],
+      date: session.created_at, // Keep full timestamp for accurate time calculations
       duration: `${session.duration_minutes || 45} min`,
     };
   });

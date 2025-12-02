@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     paddingBottom: 32,
     borderBottomLeftRadius: 48,
     borderBottomRightRadius: 48,
@@ -15,8 +15,7 @@ export default StyleSheet.create({
   titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 8,
+    gap: 16,
   },
   iconContainer: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
@@ -24,12 +23,13 @@ export default StyleSheet.create({
     borderRadius: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#FFFFFF",
   },
   subtitle: {
     fontSize: 14,
-    color: "#BFDBFE",
+    color: "#E0E7FF",
+    marginTop: 2,
   },
 });

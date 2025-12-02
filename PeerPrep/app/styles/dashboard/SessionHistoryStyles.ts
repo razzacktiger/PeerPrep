@@ -28,6 +28,9 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
+  sessionCardPressed: {
+    backgroundColor: "#F3F4F6",
+  },
   sessionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",

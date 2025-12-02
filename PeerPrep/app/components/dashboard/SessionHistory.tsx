@@ -1,9 +1,10 @@
-import React from "react";
-import { View } from "react-native";
+import React, { useState } from "react";
+import { View, Pressable } from "react-native";
 import { Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { getDifficultyColor } from "../../../lib/utils/difficultyColors";
 import styles from "../../styles/dashboard/SessionHistoryStyles";
+import SessionDetailModal from "../home/SessionDetailModal";
 
 interface Session {
   id: string;
@@ -20,6 +21,19 @@ interface SessionHistoryProps {
 }
 
 export default function SessionHistory({ sessions }: SessionHistoryProps) {
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleSessionPress = (sessionId: string) => {
+    setSelectedSessionId(sessionId);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedSessionId(null);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Session History</Text>
@@ -35,7 +49,16 @@ export default function SessionHistory({ sessions }: SessionHistoryProps) {
           sessions.map((session) => {
             const difficultyColors = getDifficultyColor(session.difficulty);
             return (
-              <View key={session.id} style={styles.sessionCard}>
+              <Pressable 
+                key={session.id} 
+                style={({ pressed }) => [
+                  styles.sessionCard,
+                  pressed && styles.sessionCardPressed
+                ]}
+                onPress={() => handleSessionPress(session.id)}
+                accessibilityRole="button"
+                accessibilityLabel={`View details for ${session.topic} session with ${session.partner}`}
+              >
                 <View style={styles.sessionHeader}>
                   <View style={styles.sessionInfo}>
                     <Text style={styles.sessionTopic}>{session.topic}</Text>
@@ -70,11 +93,17 @@ export default function SessionHistory({ sessions }: SessionHistoryProps) {
                     ))}
                   </View>
                 </View>
-              </View>
+              </Pressable>
             );
           })
         )}
       </View>
+
+      <SessionDetailModal
+        visible={modalVisible}
+        sessionId={selectedSessionId}
+        onClose={handleCloseModal}
+      />
     </View>
   );
 }

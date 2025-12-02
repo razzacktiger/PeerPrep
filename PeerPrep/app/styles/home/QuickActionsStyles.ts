@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   actionSubtitle: {
     fontSize: 12,
-    color: "#bfdbfe",
+    color: "#dbeafe",
   },
   actionTitleDark: {
     fontSize: 16,
