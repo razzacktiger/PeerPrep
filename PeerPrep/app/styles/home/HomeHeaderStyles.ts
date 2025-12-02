@@ -21,23 +21,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
-  avatarContainer: {
-    position: "relative",
-  },
-  onlineIndicator: {
-    position: "absolute",
-    bottom: -4,
-    right: -4,
-    width: 20,
-    height: 20,
-    backgroundColor: "#4ade80",
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#ffffff",
-  },
   welcomeText: {
     fontSize: 14,
-    color: "#bfdbfe",
+    color: "#E0E7FF",
   },
   userName: {
     fontSize: 18,
@@ -76,7 +62,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: "#bfdbfe",
+    color: "#E0E7FF",
   },
 });
 

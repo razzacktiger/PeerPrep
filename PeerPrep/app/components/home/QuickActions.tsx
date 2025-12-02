@@ -16,6 +16,9 @@ export default function QuickActions() {
           styles.actionButton,
           pressed && styles.actionButtonPressed,
         ]}
+        accessibilityRole="button"
+        accessibilityLabel="Practice Now"
+        accessibilityHint="Start a coding practice session immediately"
       >
         <LinearGradient
           colors={["#2563eb", "#1d4ed8"]}
@@ -39,6 +42,9 @@ export default function QuickActions() {
           styles.actionButton,
           pressed && styles.actionButtonPressed,
         ]}
+        accessibilityRole="button"
+        accessibilityLabel="Schedule Session"
+        accessibilityHint="Plan a coding practice session for later"
       >
         <View style={styles.actionButtonWhite}>
           <LinearGradient

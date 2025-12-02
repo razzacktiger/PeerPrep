@@ -87,6 +87,9 @@ export default function TopicCard({
             style={styles.practiceButton}
             onPress={() => onPracticeNow(topic)}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={`Practice ${topic.name} now`}
+            accessibilityHint={`Start a ${topic.difficulty} level practice session for ${topic.name}`}
           >
             <LinearGradient
               colors={["#2563eb", "#4f46e5"]}
@@ -102,6 +105,9 @@ export default function TopicCard({
             style={styles.scheduleButton}
             onPress={() => onSchedule(topic)}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={`Schedule ${topic.name}`}
+            accessibilityHint={`Schedule a practice session for ${topic.name} at a later time`}
           >
             <Text style={styles.scheduleButtonText}>Schedule</Text>
           </TouchableOpacity>

@@ -2,8 +2,8 @@ import React from "react";
 import { View } from "react-native";
 import { Text } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuthStore } from "../../../stores/authStore";
+import Avatar from "../shared/Avatar";
 import styles from "../../styles/home/HomeHeaderStyles";
 
 interface HomeHeaderProps {
@@ -29,14 +29,12 @@ export default function HomeHeader({ stats, paddingTop }: HomeHeaderProps) {
       <View style={styles.headerContent}>
         <View style={styles.headerTop}>
           <View style={styles.userInfo}>
-            <View style={styles.avatarContainer}>
-              <MaterialCommunityIcons
-                name="account-circle"
-                size={56}
-                color="#E5E7EB"
-              />
-              <View style={styles.onlineIndicator} />
-            </View>
+            <Avatar
+              avatarUrl={user?.avatar_url}
+              size={56}
+              showOnlineIndicator={true}
+              iconColor="#E5E7EB"
+            />
             <View>
               <Text style={styles.welcomeText}>Welcome back</Text>
               <Text style={styles.userName}>{user?.display_name || "User"} 👋</Text>

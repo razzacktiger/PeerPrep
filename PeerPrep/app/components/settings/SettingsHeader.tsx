@@ -12,7 +12,7 @@ interface SettingsHeaderProps {
 export default function SettingsHeader({ paddingTop }: SettingsHeaderProps) {
   return (
     <LinearGradient
-      colors={GRADIENTS.PRIMARY}
+      colors={["#9333ea", "#3b82f6", "#4f46e5"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
       style={[styles.container, { paddingTop }]}
@@ -24,9 +24,9 @@ export default function SettingsHeader({ paddingTop }: SettingsHeaderProps) {
           </View>
           <View>
             <Text style={styles.title}>Settings</Text>
+            <Text style={styles.subtitle}>Manage your account and preferences</Text>
           </View>
         </View>
-        <Text style={styles.subtitle}>Manage your account and preferences</Text>
       </View>
     </LinearGradient>
   );

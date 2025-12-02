@@ -39,7 +39,7 @@ export default function DashboardScreen() {
           />
         }
       >
-        <DashboardHeader paddingTop={insets.top} />
+        <DashboardHeader paddingTop={insets.top + 32} />
         
         <View style={styles.content}>
           <KPICards kpis={kpis} />

@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     flex: 1,
+    minWidth: 0, // Allow content to shrink
   },
   activityIconContainer: {
     width: 48,
@@ -46,26 +47,40 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
+    flexShrink: 0, // Prevent icon from shrinking
   },
   activityIcon: {
     fontSize: 20,
   },
   activityInfo: {
     flex: 1,
+    minWidth: 0, // Allow text to truncate if needed
   },
   activityTopic: {
     fontSize: 14,
     fontWeight: "600",
     color: "#111827",
-    marginBottom: 2,
+    marginBottom: 4,
+  },
+  activityMetaContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   activityDetails: {
+    fontSize: 12,
+    color: "#6b7280",
+    flexShrink: 1,
+  },
+  activityDot: {
     fontSize: 12,
     color: "#6b7280",
   },
   ratingContainer: {
     flexDirection: "row",
     gap: 2,
+    marginLeft: 8,
+    flexShrink: 0, // Prevent rating from shrinking
   },
   starFilled: {
     fontSize: 14,

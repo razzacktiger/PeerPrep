@@ -145,19 +145,20 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <SettingsHeader paddingTop={insets.top + 32} />
-      
       <ScrollView 
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
+        <SettingsHeader paddingTop={insets.top + 32} />        
         <ProfileSection
           displayName={settings.displayName}
           email={settings.email}
           bio={settings.bio}
           avatarUrl={settings.avatarUrl}
+          userId={user?.id || ''}
           onDisplayNameChange={setPendingDisplayName}
           onBioChange={setPendingBio}
+          onAvatarChange={settings.updateAvatar}
           onSave={handleSaveProfile}
           isSaving={settings.isSaving}
           saveSuccess={settings.saveSuccess}

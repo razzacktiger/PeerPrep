@@ -14,10 +14,13 @@ export default function HomeScreen() {
 
   // Transform recent sessions for RecentActivity component
   const recentActivities = recentSessions.map(session => ({
+    id: session.id,
     topic: session.topic,
     partner: session.partner,
     rating: session.rating,
     date: formatDate(session.date),
+    difficulty: session.difficulty,
+    duration: session.duration,
   }));
 
   return (
@@ -52,22 +55,34 @@ export default function HomeScreen() {
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
-  const diffTime = Math.abs(now.getTime() - date.getTime());
+  
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    return 'Recently';
+  }
+  
+  const diffTime = now.getTime() - date.getTime(); // Remove Math.abs to get proper direction
+  const diffMinutes = Math.floor(diffTime / (1000 * 60));
+  const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   
-  if (diffDays === 0) {
-    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-    if (diffHours === 0) {
-      const diffMinutes = Math.floor(diffTime / (1000 * 60));
-      return `${diffMinutes} minutes ago`;
-    }
-    return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+  // Handle future dates (should not happen, but just in case)
+  if (diffTime < 0) {
+    return 'Just now';
+  }
+  
+  if (diffMinutes < 1) {
+    return 'Just now';
+  } else if (diffMinutes < 60) {
+    return `${diffMinutes} ${diffMinutes === 1 ? 'min' : 'mins'} ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours} ${diffHours === 1 ? 'hr' : 'hrs'} ago`;
   } else if (diffDays === 1) {
     return 'Yesterday';
   } else if (diffDays < 7) {
     return `${diffDays} days ago`;
   } else {
-    return date.toLocaleDateString();
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 }
 
