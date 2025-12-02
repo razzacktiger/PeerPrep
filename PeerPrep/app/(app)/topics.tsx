@@ -79,39 +79,41 @@ export default function TopicsScreen() {
 
   return (
     <View style={topicsStyles.container}>
-      {/* Header */}
-      <LinearGradient
-        colors={["#9333ea", "#3b82f6", "#4f46e5"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[topicsStyles.headerGradient, { paddingTop: insets.top + 32 }]}
-      >
-        <View style={topicsStyles.headerContent}>
-          <Text style={topicsStyles.title}>Practice Topics</Text>
-          <Text style={topicsStyles.subtitle}>
-            Choose a topic to start practicing
-          </Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <LinearGradient
+          colors={["#9333ea", "#3b82f6", "#4f46e5"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[topicsStyles.headerGradient, { paddingTop: insets.top + 32 }]}
+        >
+          <View style={topicsStyles.headerContent}>
+            <Text style={topicsStyles.title}>Practice Topics</Text>
+            <Text style={topicsStyles.subtitle}>
+              Choose a topic to start practicing
+            </Text>
 
-          {/* Search Bar */}
-          <TopicSearch
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-          />
+            {/* Search Bar */}
+            <TopicSearch
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+          </View>
+        </LinearGradient>
+
+        {/* Topics List */}
+        <View style={topicsStyles.contentContainer}>
+          {filteredTopics.length > 0
+            ? filteredTopics.map((topic) => (
+                <TopicCard
+                  key={topic.id}
+                  topic={topic}
+                  onPracticeNow={handlePracticeNow}
+                  onSchedule={handleSchedule}
+                />
+              ))
+            : renderEmptyState()}
         </View>
-      </LinearGradient>
-
-      {/* Topics List */}
-      <ScrollView style={topicsStyles.contentContainer}>
-        {filteredTopics.length > 0
-          ? filteredTopics.map((topic) => (
-              <TopicCard
-                key={topic.id}
-                topic={topic}
-                onPracticeNow={handlePracticeNow}
-                onSchedule={handleSchedule}
-              />
-            ))
-          : renderEmptyState()}
       </ScrollView>
     </View>
   );

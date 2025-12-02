@@ -145,12 +145,11 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <SettingsHeader paddingTop={insets.top + 32} />
-      
       <ScrollView 
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
+        <SettingsHeader paddingTop={insets.top + 32} />        
         <ProfileSection
           displayName={settings.displayName}
           email={settings.email}
