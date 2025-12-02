@@ -102,10 +102,29 @@ export async function joinQueue(
 
     // If matched immediately, return match result
     if (matchData?.status === "matched") {
+      console.log(
+        "🔍 joinQueue: Edge Function matched, fetching partner profile:",
+        {
+          partnerId: matchData.session.partner_id,
+        }
+      );
+
+      // Fetch partner's profile to get their name
+      const { data: partnerProfile, error: profileError } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", matchData.session.partner_id)
+        .single();
+
+      console.log("👤 joinQueue: Partner profile result:", {
+        displayName: partnerProfile?.display_name,
+        error: profileError?.message,
+      });
+
       const matchResult: MatchResult = {
         sessionId: matchData.session.id,
         partnerId: matchData.session.partner_id,
-        partnerName: "Peer", // Will be fetched in session screen
+        partnerName: partnerProfile?.display_name || "Peer",
         topicId: matchData.session.topic_id,
         topicName: matchData.session.topic_name,
       };
@@ -217,11 +236,30 @@ export async function checkQueueStatus(): Promise<
         const partnerId =
           session.host_id === user.id ? session.guest_id : session.host_id;
 
+        console.log("🔍 Fetching partner profile:", {
+          partnerId,
+          currentUserId: user.id,
+          sessionHostId: session.host_id,
+          sessionGuestId: session.guest_id,
+        });
+
+        // Fetch partner's profile to get their name
+        const { data: partnerProfile, error: profileError } = await supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("id", partnerId)
+          .single();
+
+        console.log("👤 Partner profile result:", {
+          displayName: partnerProfile?.display_name,
+          error: profileError?.message,
+        });
+
         return {
           data: {
             sessionId: session.id,
             partnerId: partnerId,
-            partnerName: "Peer",
+            partnerName: partnerProfile?.display_name || "Peer", // ✅ REAL NAME
             topicId: session.topic_id,
             topicName: (session.topics as any)?.name || "Unknown",
           } as MatchResult,
@@ -241,11 +279,27 @@ export async function checkQueueStatus(): Promise<
     });
 
     if (matchData?.status === "matched") {
+      console.log("🔍 Edge Function matched, fetching partner profile:", {
+        partnerId: matchData.session.partner_id,
+      });
+
+      // Fetch partner's profile to get their name
+      const { data: partnerProfile, error: profileError } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", matchData.session.partner_id)
+        .single();
+
+      console.log("👤 Partner profile result:", {
+        displayName: partnerProfile?.display_name,
+        error: profileError?.message,
+      });
+
       return {
         data: {
           sessionId: matchData.session.id,
           partnerId: matchData.session.partner_id,
-          partnerName: "Peer",
+          partnerName: partnerProfile?.display_name || "Peer", // ✅ REAL NAME
           topicId: matchData.session.topic_id,
           topicName: matchData.session.topic_name,
         } as MatchResult,
