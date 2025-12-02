@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { COLORS } from '../../../lib/constants/colors';
 
-const authStyles = StyleSheet.create({
+export const authStyles = StyleSheet.create({
   gradientContainer: {
     flex: 1,
   },
@@ -96,5 +96,3 @@ const authStyles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-export default authStyles;
