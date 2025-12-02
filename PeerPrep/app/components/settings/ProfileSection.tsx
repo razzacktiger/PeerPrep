@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Image, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Image, ActivityIndicator, Alert, Linking } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { GRADIENTS } from "../../../lib/constants/colors";
@@ -76,8 +76,24 @@ export default function ProfileSection({
       const result = await pickAndUploadProfileImage(userId, avatarUrl);
       
       if (!result.success) {
+        // Only show alert if there's an actual error (not just cancellation)
         if (result.error && result.error !== 'Image selection cancelled') {
-          Alert.alert('Upload Failed', result.error);
+          // Check if it's a permission error
+          if (result.error.includes('permission')) {
+            Alert.alert(
+              'Permission Required',
+              'PeerPrep needs access to your photo library to upload profile pictures. Please grant permission in your device settings.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { 
+                  text: 'Open Settings', 
+                  onPress: () => Linking.openSettings() 
+                }
+              ]
+            );
+          } else {
+            Alert.alert('Upload Failed', result.error);
+          }
         }
         return;
       }
