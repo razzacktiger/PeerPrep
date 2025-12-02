@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Image, ActivityIndicator, Alert } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { GRADIENTS } from "../../../lib/constants/colors";
+import { pickAndUploadProfileImage } from "../../../lib/utils/imageUpload";
 import styles from "../../styles/settings/ProfileSectionStyles";
 
 interface ProfileSectionProps {
@@ -12,9 +13,11 @@ interface ProfileSectionProps {
   avatarUrl: string | null;
   onDisplayNameChange: (name: string) => void;
   onBioChange: (bio: string) => void;
+  onAvatarChange: (url: string) => Promise<void>;
   onSave: () => void;
   isSaving?: boolean;
   saveSuccess?: boolean;
+  userId: string;
 }
 
 export default function ProfileSection({
@@ -24,14 +27,17 @@ export default function ProfileSection({
   avatarUrl,
   onDisplayNameChange,
   onBioChange,
+  onAvatarChange,
   onSave,
   isSaving = false,
   saveSuccess = false,
+  userId,
 }: ProfileSectionProps) {
   const [showBioModal, setShowBioModal] = useState(false);
   const [localDisplayName, setLocalDisplayName] = useState(displayName);
   const [localBio, setLocalBio] = useState(bio);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   
   // Update local state when props change
   React.useEffect(() => {
@@ -62,6 +68,30 @@ export default function ProfileSection({
     onSave();
   };
   
+  const handleAvatarUpload = async () => {
+    try {
+      setIsUploadingAvatar(true);
+      
+      const result = await pickAndUploadProfileImage(userId, avatarUrl);
+      
+      if (!result.success) {
+        if (result.error && result.error !== 'Image selection cancelled') {
+          Alert.alert('Upload Failed', result.error);
+        }
+        return;
+      }
+      
+      if (result.url) {
+        await onAvatarChange(result.url);
+        Alert.alert('Success', 'Profile picture updated successfully');
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to upload profile picture');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile Information</Text>
@@ -69,15 +99,34 @@ export default function ProfileSection({
       <View style={styles.card}>
         {/* Avatar */}
         <View style={styles.avatarSection}>
-        <View style={styles.avatar}>
-          <MaterialCommunityIcons name="account-circle" size={64} color="#6366F1" />
+          <View style={styles.avatar}>
+            {avatarUrl ? (
+              <Image 
+                source={{ uri: avatarUrl }} 
+                style={styles.avatarImage}
+                resizeMode="cover"
+              />
+            ) : (
+              <MaterialCommunityIcons name="account-circle" size={64} color="#6366F1" />
+            )}
+            {isUploadingAvatar && (
+              <View style={styles.avatarOverlay}>
+                <ActivityIndicator size="large" color="#FFFFFF" />
+              </View>
+            )}
+          </View>
+          <TouchableOpacity 
+            style={styles.changeAvatarButton}
+            onPress={handleAvatarUpload}
+            disabled={isUploadingAvatar}
+          >
+            <MaterialCommunityIcons name="camera" size={16} color="#6366F1" />
+            <Text style={styles.changeAvatarText}>
+              {isUploadingAvatar ? 'Uploading...' : 'Change Avatar'}
+            </Text>
+          </TouchableOpacity>
+          <Text style={styles.avatarHint}>JPG, PNG or GIF. Max 2MB.</Text>
         </View>
-        <TouchableOpacity style={styles.changeAvatarButton}>
-          <MaterialCommunityIcons name="camera" size={16} color="#6366F1" />
-          <Text style={styles.changeAvatarText}>Change Avatar</Text>
-        </TouchableOpacity>
-        <Text style={styles.avatarHint}>JPG, PNG or GIF. Max 2MB.</Text>
-      </View>
 
       {/* Name */}
       <View style={styles.fieldContainer}>
