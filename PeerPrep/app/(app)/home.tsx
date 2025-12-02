@@ -14,10 +14,13 @@ export default function HomeScreen() {
 
   // Transform recent sessions for RecentActivity component
   const recentActivities = recentSessions.map(session => ({
+    id: session.id,
     topic: session.topic,
     partner: session.partner,
     rating: session.rating,
     date: formatDate(session.date),
+    difficulty: session.difficulty,
+    duration: session.duration,
   }));
 
   return (
