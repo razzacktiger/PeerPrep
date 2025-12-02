@@ -1,8 +1,13 @@
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons/';
 import { StatsProvider } from '../../lib/contexts/StatsContext';
 
 export default function AppLayout() {
+  const pathname = usePathname();
+  
+  // Hide tab bar when in session or queue screens
+  const hideTabBar = pathname.includes('/session') || pathname.includes('/queue');
+
   return (
     <StatsProvider>
       <Tabs
@@ -10,6 +15,7 @@ export default function AppLayout() {
           headerShown: true,
           tabBarActiveTintColor: '#6200ee',
           tabBarInactiveTintColor: '#757575',
+          tabBarStyle: hideTabBar ? { display: 'none' } : undefined,
         }}
       >
       <Tabs.Screen

@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, ScrollView } from "react-native";
 import { Text, Button, Card } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -55,7 +55,10 @@ export default function QueueScreen() {
         end={{ x: 1, y: 1 }}
         style={styles.container}
       >
-        <View style={styles.content}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <Card style={styles.mainCard}>
             <Card.Content style={styles.cardContent}>
               <View style={styles.errorIconContainer}>
@@ -90,7 +93,7 @@ export default function QueueScreen() {
               </View>
             </Card.Content>
           </Card>
-        </View>
+        </ScrollView>
       </LinearGradient>
     );
   }
@@ -102,7 +105,10 @@ export default function QueueScreen() {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
-      <View style={styles.content}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <Card style={styles.mainCard}>
           <Card.Content style={styles.cardContent}>
             {/* Status Icon */}
@@ -172,7 +178,7 @@ export default function QueueScreen() {
 
         {/* Tips */}
         {status === "searching" && <QueueTips />}
-      </View>
+      </ScrollView>
     </LinearGradient>
   );
 }

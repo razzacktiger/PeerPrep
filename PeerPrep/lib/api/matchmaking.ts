@@ -17,6 +17,7 @@ export interface MatchResult {
   sessionId: string;
   partnerId: string;
   partnerName: string;
+  partnerAvatar?: string;
   topicId: string;
   topicName: string;
 }
@@ -109,15 +110,16 @@ export async function joinQueue(
         }
       );
 
-      // Fetch partner's profile to get their name
+      // Fetch partner's profile to get their name and avatar
       const { data: partnerProfile, error: profileError } = await supabase
         .from("profiles")
-        .select("display_name")
+        .select("display_name, avatar_url")
         .eq("id", matchData.session.partner_id)
         .single();
 
       console.log("👤 joinQueue: Partner profile result:", {
         displayName: partnerProfile?.display_name,
+        avatarUrl: partnerProfile?.avatar_url,
         error: profileError?.message,
       });
 
@@ -125,6 +127,7 @@ export async function joinQueue(
         sessionId: matchData.session.id,
         partnerId: matchData.session.partner_id,
         partnerName: partnerProfile?.display_name || "Peer",
+        partnerAvatar: partnerProfile?.avatar_url,
         topicId: matchData.session.topic_id,
         topicName: matchData.session.topic_name,
       };
@@ -243,15 +246,16 @@ export async function checkQueueStatus(): Promise<
           sessionGuestId: session.guest_id,
         });
 
-        // Fetch partner's profile to get their name
+        // Fetch partner's profile to get their name and avatar
         const { data: partnerProfile, error: profileError } = await supabase
           .from("profiles")
-          .select("display_name")
+          .select("display_name, avatar_url")
           .eq("id", partnerId)
           .single();
 
         console.log("👤 Partner profile result:", {
           displayName: partnerProfile?.display_name,
+          avatarUrl: partnerProfile?.avatar_url,
           error: profileError?.message,
         });
 
@@ -260,6 +264,7 @@ export async function checkQueueStatus(): Promise<
             sessionId: session.id,
             partnerId: partnerId,
             partnerName: partnerProfile?.display_name || "Peer", // ✅ REAL NAME
+            partnerAvatar: partnerProfile?.avatar_url,
             topicId: session.topic_id,
             topicName: (session.topics as any)?.name || "Unknown",
           } as MatchResult,
@@ -283,15 +288,16 @@ export async function checkQueueStatus(): Promise<
         partnerId: matchData.session.partner_id,
       });
 
-      // Fetch partner's profile to get their name
+      // Fetch partner's profile to get their name and avatar
       const { data: partnerProfile, error: profileError } = await supabase
         .from("profiles")
-        .select("display_name")
+        .select("display_name, avatar_url")
         .eq("id", matchData.session.partner_id)
         .single();
 
       console.log("👤 Partner profile result:", {
         displayName: partnerProfile?.display_name,
+        avatarUrl: partnerProfile?.avatar_url,
         error: profileError?.message,
       });
 
@@ -300,6 +306,7 @@ export async function checkQueueStatus(): Promise<
           sessionId: matchData.session.id,
           partnerId: matchData.session.partner_id,
           partnerName: partnerProfile?.display_name || "Peer", // ✅ REAL NAME
+          partnerAvatar: partnerProfile?.avatar_url,
           topicId: matchData.session.topic_id,
           topicName: matchData.session.topic_name,
         } as MatchResult,

@@ -76,10 +76,10 @@ export default StyleSheet.create({
   },
   dialogOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 16,
+    paddingHorizontal: 24,
   },
   dialogCard: {
     backgroundColor: "#FFFFFF",

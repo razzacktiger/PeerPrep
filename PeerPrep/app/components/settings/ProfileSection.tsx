@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { GRADIENTS } from "../../../lib/constants/colors";
 import { pickAndUploadProfileImage } from "../../../lib/utils/imageUpload";
 import styles from "../../styles/settings/ProfileSectionStyles";
+import Avatar from "../shared/Avatar";
 
 interface ProfileSectionProps {
   displayName: string;
@@ -99,22 +100,20 @@ export default function ProfileSection({
       <View style={styles.card}>
         {/* Avatar */}
         <View style={styles.avatarSection}>
-          <View style={styles.avatar}>
-            {avatarUrl ? (
-              <Image 
-                source={{ uri: avatarUrl }} 
-                style={styles.avatarImage}
-                resizeMode="cover"
-              />
-            ) : (
-              <MaterialCommunityIcons name="account-circle" size={64} color="#6366F1" />
-            )}
-            {isUploadingAvatar && (
-              <View style={styles.avatarOverlay}>
-                <ActivityIndicator size="large" color="#FFFFFF" />
-              </View>
-            )}
-          </View>
+          <TouchableOpacity 
+            onPress={handleAvatarUpload}
+            disabled={isUploadingAvatar}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Change avatar"
+            accessibilityHint="Select and upload a new profile picture"
+          >
+            <Avatar 
+              avatarUrl={avatarUrl}
+              size={96}
+              showOnlineIndicator={false}
+            />
+          </TouchableOpacity>
           <TouchableOpacity 
             style={styles.changeAvatarButton}
             onPress={handleAvatarUpload}

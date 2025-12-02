@@ -99,9 +99,7 @@ export const useMatchmaking = (
             topic_name: joinResult.data.topicName,
             partner_id: joinResult.data.partnerId,
             partner_name: joinResult.data.partnerName,
-            partner_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              joinResult.data.partnerName
-            )}`,
+            partner_avatar: joinResult.data.partnerAvatar || undefined,
             status: "active",
             started_at: new Date().toISOString(),
             duration_minutes: 25,
@@ -161,9 +159,7 @@ export const useMatchmaking = (
                 topic_name: statusResult.data.topicName,
                 partner_id: statusResult.data.partnerId,
                 partner_name: statusResult.data.partnerName,
-                partner_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  statusResult.data.partnerName
-                )}`,
+                partner_avatar: statusResult.data.partnerAvatar || undefined,
                 status: "active",
                 started_at: new Date().toISOString(),
                 duration_minutes: 25,

@@ -72,16 +72,10 @@ export default function SessionDetailModal({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <TouchableOpacity 
+      <View 
         style={styles.overlay} 
-        activeOpacity={1} 
-        onPress={onClose}
       >
-        <TouchableOpacity 
-          style={styles.container} 
-          activeOpacity={1}
-          onPress={(e) => e.stopPropagation()}
-        >
+        <View style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Session Details</Text>
@@ -363,8 +357,8 @@ export default function SessionDetailModal({
             </View>
           </ScrollView>
           )}
-        </TouchableOpacity>
-      </TouchableOpacity>
+        </View>
+      </View>
     </Modal>
   );
 }
