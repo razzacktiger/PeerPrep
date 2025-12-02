@@ -156,8 +156,10 @@ export default function SettingsScreen() {
           email={settings.email}
           bio={settings.bio}
           avatarUrl={settings.avatarUrl}
+          userId={user?.id || ''}
           onDisplayNameChange={setPendingDisplayName}
           onBioChange={setPendingBio}
+          onAvatarChange={settings.updateAvatar}
           onSave={handleSaveProfile}
           isSaving={settings.isSaving}
           saveSuccess={settings.saveSuccess}
