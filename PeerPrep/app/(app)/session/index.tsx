@@ -24,12 +24,14 @@ import { TabView, TabBar, SceneMap, Route } from "react-native-tab-view";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { useSessionStore } from "../../../stores/sessionStore";
+import { useAuthStore } from "../../../stores/authStore";
 import * as sessionsApi from "../../../lib/api/sessions";
 import * as realtimeApi from "../../../lib/api/realtime";
 import SessionHeader from "../../components/session/SessionHeader";
 import SessionQuestion from "../../components/session/SessionQuestion";
 import SessionCodeEditor from "../../components/session/SessionCodeEditor";
 import SessionNotes from "../../components/session/SessionNotes";
+import SessionChat from "../../components/session/SessionChat";
 import EndSessionDialog from "../../components/session/EndSessionDialog";
 import sessionStyles from "../../styles/sessionStyles";
 
@@ -41,6 +43,7 @@ export default function SessionScreen() {
   const layout = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
   const {
     currentSession,
     setCurrentSession,
@@ -48,6 +51,9 @@ export default function SessionScreen() {
     isTimerRunning,
     startTimer,
     tickTimer,
+    chatMessages,
+    addChatMessage,
+    setChatMessages,
   } = useSessionStore();
 
   // Debug: Track parent component renders (commented out to reduce noise)
@@ -83,6 +89,7 @@ export default function SessionScreen() {
   const codeChannelRef = useRef<RealtimeChannel | null>(null);
   const notesChannelRef = useRef<RealtimeChannel | null>(null);
   const statusChannelRef = useRef<RealtimeChannel | null>(null);
+  const chatChannelRef = useRef<RealtimeChannel | null>(null);
 
   // Track if update is from partner (to prevent overwriting local changes)
   const isUpdatingFromPartnerRef = useRef(false);
@@ -98,6 +105,7 @@ export default function SessionScreen() {
     { key: "question", title: "Question", icon: "file-document" },
     { key: "code", title: "Code", icon: "code-tags" },
     { key: "notes", title: "Notes", icon: "note-text" },
+    { key: "chat", title: "Chat", icon: "chat" },
   ]);
 
   // Real-time subscriptions
@@ -189,6 +197,16 @@ export default function SessionScreen() {
       }
     );
 
+    // Subscribe to chat messages
+    setChatMessages([]); // Reset chat messages for new session
+    chatChannelRef.current = realtimeApi.subscribeToChatMessages(
+      currentSession.id,
+      (newMessage) => {
+        console.log("💬 Received new chat message:", newMessage.message);
+        addChatMessage(newMessage);
+      }
+    );
+
     // Cleanup on unmount
     return () => {
       console.log("🔌 Cleaning up real-time subscriptions");
@@ -201,8 +219,17 @@ export default function SessionScreen() {
       if (statusChannelRef.current) {
         realtimeApi.unsubscribeChannel(statusChannelRef.current);
       }
+      if (chatChannelRef.current) {
+        realtimeApi.unsubscribeChannel(chatChannelRef.current);
+      }
     };
-  }, [currentSession, setCurrentSession, router]);
+  }, [
+    currentSession,
+    setCurrentSession,
+    router,
+    addChatMessage,
+    setChatMessages,
+  ]);
 
   // Timer effect - stop if no session
   useEffect(() => {
@@ -317,6 +344,19 @@ export default function SessionScreen() {
     [] // No dependencies - stable reference!
   );
 
+  // Handle sending chat messages
+  const handleSendMessage = useCallback(async (message: string) => {
+    const sessionId = sessionIdRef.current;
+    if (sessionId) {
+      console.log("💬 Sending chat message:", message);
+      const { error } = await realtimeApi.sendChatMessage(sessionId, message);
+      if (error) {
+        console.error("❌ Failed to send message:", error);
+        Alert.alert("Error", "Failed to send message. Please try again.");
+      }
+    }
+  }, []);
+
   // Use a custom renderScene instead of SceneMap to avoid recreation issues
   const renderScene = useCallback(
     ({ route }: { route: TabRoute }) => {
@@ -385,6 +425,17 @@ export default function SessionScreen() {
             </ScrollView>
           );
 
+        case "chat":
+          return (
+            <View style={sessionStyles.tabContent}>
+              <SessionChat
+                messages={chatMessages}
+                currentUserId={user?.id || ""}
+                onSendMessage={handleSendMessage}
+              />
+            </View>
+          );
+
         default:
           return null;
       }
@@ -394,8 +445,11 @@ export default function SessionScreen() {
       isRecording,
       localCode,
       localNotes,
+      chatMessages,
+      user?.id,
       handleCodeChange,
       handleNotesChange,
+      handleSendMessage,
     ]
   );
 
