@@ -15,8 +15,10 @@ export default StyleSheet.create({
   titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 4,
+    gap: 16,
+  },
+  titleContainer: {
+    flex: 1,
   },
   iconContainer: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
@@ -31,6 +33,6 @@ export default StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: "#E0E7FF",
-    marginTop: 4,
+    marginTop: 2,
   },
 });

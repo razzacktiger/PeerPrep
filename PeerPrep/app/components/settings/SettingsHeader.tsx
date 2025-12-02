@@ -24,9 +24,9 @@ export default function SettingsHeader({ paddingTop }: SettingsHeaderProps) {
           </View>
           <View>
             <Text style={styles.title}>Settings</Text>
+            <Text style={styles.subtitle}>Manage your account and preferences</Text>
           </View>
         </View>
-        <Text style={styles.subtitle}>Manage your account and preferences</Text>
       </View>
     </LinearGradient>
   );
