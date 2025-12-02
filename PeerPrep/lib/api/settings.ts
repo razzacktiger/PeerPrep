@@ -19,7 +19,6 @@ export interface UserProfile {
 
 export interface UserPreferences {
   user_id: string;
-  push_notifications: boolean;
   dark_mode: boolean;
 }
 
@@ -96,7 +95,6 @@ export async function getUserPreferences(userId: string): Promise<ApiResponse<Us
     const skills = data?.skills as any || {};
     const preferences: UserPreferences = {
       user_id: userId,
-      push_notifications: skills.push_notifications ?? true,
       dark_mode: skills.dark_mode ?? false,
     };
 
@@ -132,7 +130,6 @@ export async function updateUserPreferences(
       .from('profiles')
       .update({
         skills: {
-          push_notifications: updatedPreferences.push_notifications,
           dark_mode: updatedPreferences.dark_mode,
         },
         updated_at: new Date().toISOString(),
@@ -148,7 +145,6 @@ export async function updateUserPreferences(
     return {
       data: {
         user_id: userId,
-        push_notifications: skills.push_notifications ?? true,
         dark_mode: skills.dark_mode ?? false,
       },
     };
