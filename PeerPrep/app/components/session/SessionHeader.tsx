@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Image, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { Text, Button } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Avatar from "../shared/Avatar";
 import styles from "../../styles/session/SessionHeaderStyles";
 
 interface SessionHeaderProps {
@@ -31,18 +32,14 @@ export default function SessionHeader({
         {/* Top Row - Partner Info & Timer */}
         <View style={styles.topRow}>
           <View style={styles.partnerInfo}>
-            {partnerAvatar ? (
-              <Image source={{ uri: partnerAvatar }} style={styles.avatar} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <MaterialCommunityIcons name="account-circle" size={48} color="#E5E7EB" />
-              </View>
-            )}
+            <Avatar
+              avatarUrl={partnerAvatar}
+              size={48}
+              showOnlineIndicator={true}
+              iconColor="#E5E7EB"
+            />
             <View style={styles.partnerDetails}>
-              <View style={styles.partnerNameRow}>
-                <Text style={styles.partnerName}>{partnerName}</Text>
-                <View style={styles.onlineIndicator} />
-              </View>
+              <Text style={styles.partnerName}>{partnerName}</Text>
               <View style={styles.topicRow}>
                 <Text style={styles.topicName}>{topicName}</Text>
               </View>
