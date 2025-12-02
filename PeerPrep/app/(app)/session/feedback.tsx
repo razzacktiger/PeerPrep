@@ -3,6 +3,7 @@ import { View, ScrollView, TouchableOpacity } from "react-native";
 import { Text, Button } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSessionStore } from "../../../stores/sessionStore";
 import {
   useFeedbackSubmission,
@@ -15,6 +16,7 @@ import styles from "../../styles/feedbackStyles";
 
 export default function FeedbackScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const currentSession = useSessionStore((state) => state.currentSession);
   const setCurrentSession = useSessionStore((state) => state.setCurrentSession);
 
@@ -121,7 +123,10 @@ export default function FeedbackScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]}
+    >
       <FeedbackHeader />
 
       {/* Error Message */}
