@@ -11,6 +11,13 @@ export default StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 24,
   },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 44,
+  },
   mainCard: {
     width: "100%",
     maxWidth: 448,
