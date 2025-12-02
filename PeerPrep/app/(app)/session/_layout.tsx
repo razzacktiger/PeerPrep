@@ -2,8 +2,8 @@
  * Session Layout - Stack navigation for session screens
  */
 
-import { Stack } from 'expo-router';
-import { Platform } from 'react-native';
+import { Stack } from "expo-router";
+import { Platform } from "react-native";
 
 export default function SessionLayout() {
   return (
@@ -11,18 +11,17 @@ export default function SessionLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: 'Session',
+          title: "Session",
           headerShown: false,
         }}
       />
       <Stack.Screen
         name="feedback"
         options={{
-          title: 'Session Feedback',
-          presentation: 'modal',
+          title: "Session Feedback",
+          headerShown: false,
         }}
       />
     </Stack>
   );
 }
-

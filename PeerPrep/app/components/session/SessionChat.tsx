@@ -165,3 +165,4 @@ const SessionChat = memo(function SessionChat({
 });
 
 export default SessionChat;
+
