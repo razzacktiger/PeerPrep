@@ -10,7 +10,7 @@ export default function ScheduleHeader() {
 
   return (
     <LinearGradient
-      colors={["#9333EA", "#2563EB", "#4F46E5"]}
+      colors={["#9333ea", "#3b82f6", "#4f46e5"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[styles.container, { paddingTop: insets.top + 32 }]}

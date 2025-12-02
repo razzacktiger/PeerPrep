@@ -12,7 +12,7 @@ interface DashboardHeaderProps {
 export default function DashboardHeader({ paddingTop }: DashboardHeaderProps) {
   return (
     <LinearGradient
-      colors={["#9333EA", "#3B82F6", "#6366F1"]}
+      colors={["#9333ea", "#3b82f6", "#4f46e5"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[styles.headerGradient, { paddingTop }]}
