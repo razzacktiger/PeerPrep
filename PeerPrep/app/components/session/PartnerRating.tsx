@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import Avatar from "../shared/Avatar";
 import styles from "../../styles/session/PartnerRatingStyles";
 
 interface PartnerRatingProps {
@@ -53,13 +54,11 @@ export default function PartnerRating({
 
       {/* Partner Info */}
       <View style={styles.partnerInfo}>
-        {partnerAvatar ? (
-          <Image source={{ uri: partnerAvatar }} style={styles.avatar} />
-        ) : (
-          <View style={styles.avatarPlaceholder}>
-            <MaterialCommunityIcons name="account-circle" size={56} color="#9CA3AF" />
-          </View>
-        )}
+        <Avatar
+          avatarUrl={partnerAvatar}
+          size={56}
+          iconColor="#9CA3AF"
+        />
         <View style={styles.partnerDetails}>
           <Text style={styles.partnerName}>{partnerName}</Text>
           <Text style={styles.partnerQuestion}>How was your experience?</Text>
