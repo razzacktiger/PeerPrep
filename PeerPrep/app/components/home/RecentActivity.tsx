@@ -45,7 +45,7 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
       <Card.Content>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recent Sessions</Text>
-          <Text style={styles.arrowIcon}>→</Text>
+          {/* <Text style={styles.arrowIcon}>→</Text> */}
         </View>
         {activities.map((activity, index) => (
           <Pressable
