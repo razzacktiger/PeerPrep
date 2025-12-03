@@ -18,6 +18,14 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
 const STORAGE_BUCKET = 'avatars';
 
 /**
+ * Check if media library permissions are granted (without requesting)
+ */
+export async function checkImagePermissions(): Promise<boolean> {
+  const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+  return status === 'granted';
+}
+
+/**
  * Request camera roll permissions
  */
 export async function requestImagePermissions(): Promise<boolean> {
@@ -50,6 +58,7 @@ export async function pickImage(): Promise<ImagePicker.ImagePickerResult | null>
   const hasPermission = await requestImagePermissions();
   
   if (!hasPermission) {
+    // Permission was denied - return null to let caller handle it
     return null;
   }
 
@@ -228,7 +237,11 @@ export async function pickAndUploadProfileImage(
     // Pick image
     const result = await pickImage();
 
-    if (!result || result.canceled) {
+    if (!result) {
+      return { success: false, error: 'Permission denied. Please grant photo library access in your device settings.' };
+    }
+
+    if (result.canceled) {
       return { success: false, error: 'Image selection cancelled' };
     }
 

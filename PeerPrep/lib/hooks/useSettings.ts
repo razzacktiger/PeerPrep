@@ -19,7 +19,6 @@ export interface UseSettingsReturn {
   // Preferences state
   preferences: settingsApi.UserPreferences | null;
   darkMode: boolean;
-  pushNotifications: boolean;
   
   // Loading & error states
   isLoading: boolean;
@@ -49,7 +48,6 @@ export function useSettings(): UseSettingsReturn {
   // Preferences state
   const [preferences, setPreferences] = useState<settingsApi.UserPreferences | null>(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [pushNotifications, setPushNotifications] = useState(true);
   
   // Loading & error states
   const [isLoading, setIsLoading] = useState(true);
@@ -95,7 +93,6 @@ export function useSettings(): UseSettingsReturn {
       } else if (prefsResult.data) {
         setPreferences(prefsResult.data);
         setDarkMode(prefsResult.data.dark_mode);
-        setPushNotifications(prefsResult.data.push_notifications);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load settings');
@@ -196,9 +193,6 @@ export function useSettings(): UseSettingsReturn {
       case 'dark_mode':
         setDarkMode(value);
         break;
-      case 'push_notifications':
-        setPushNotifications(value);
-        break;
     }
     
     try {
@@ -211,9 +205,6 @@ export function useSettings(): UseSettingsReturn {
           switch (key) {
             case 'dark_mode':
               setDarkMode(preferences.dark_mode);
-              break;
-            case 'push_notifications':
-              setPushNotifications(preferences.push_notifications);
               break;
           }
         }
@@ -251,7 +242,6 @@ export function useSettings(): UseSettingsReturn {
     // Preferences state
     preferences,
     darkMode,
-    pushNotifications,
     
     // Loading & error states
     isLoading,

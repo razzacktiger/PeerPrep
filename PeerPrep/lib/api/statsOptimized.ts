@@ -137,9 +137,9 @@ export async function getBatchStats(userId: string): Promise<BatchStatsResult> {
       topicMap
     );
 
-    // Get Recent Sessions
+    // Get Recent Sessions (all sessions, will be paginated in UI)
     const recentSessions = formatRecentSessions(
-      allSessions?.slice(0, 5) || [],
+      allSessions || [],
       feedbackMap,
       topicMap,
       questionMap,

@@ -166,9 +166,7 @@ export default function SettingsScreen() {
 
         <PreferencesSection
           darkMode={settings.darkMode}
-          pushNotifications={settings.pushNotifications}
           onDarkModeChange={(value) => settings.updatePreference('dark_mode', value)}
-          onPushNotificationsChange={(value) => settings.updatePreference('push_notifications', value)}
         />
 
         <AccountActionsSection

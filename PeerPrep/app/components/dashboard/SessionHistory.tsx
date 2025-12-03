@@ -18,9 +18,17 @@ interface Session {
 
 interface SessionHistoryProps {
   sessions: Session[];
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
 }
 
-export default function SessionHistory({ sessions }: SessionHistoryProps) {
+export default function SessionHistory({ 
+  sessions, 
+  hasMore = false, 
+  loadingMore = false,
+  onLoadMore 
+}: SessionHistoryProps) {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -98,6 +106,31 @@ export default function SessionHistory({ sessions }: SessionHistoryProps) {
           })
         )}
       </View>
+
+      {hasMore && onLoadMore && (
+        <Pressable
+          style={({ pressed }) => [
+            styles.loadMoreButton,
+            pressed && styles.loadMoreButtonPressed
+          ]}
+          onPress={onLoadMore}
+          disabled={loadingMore}
+          accessibilityRole="button"
+          accessibilityLabel="Load more sessions"
+        >
+          {loadingMore ? (
+            <View style={styles.loadMoreContent}>
+              <MaterialCommunityIcons name="loading" size={20} color="#8B5CF6" />
+              <Text style={styles.loadMoreText}>Loading...</Text>
+            </View>
+          ) : (
+            <View style={styles.loadMoreContent}>
+              <Text style={styles.loadMoreText}>Load More</Text>
+              <MaterialCommunityIcons name="chevron-down" size={20} color="#8B5CF6" />
+            </View>
+          )}
+        </Pressable>
+      )}
 
       <SessionDetailModal
         visible={modalVisible}

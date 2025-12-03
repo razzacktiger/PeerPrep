@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useStats } from '../contexts/StatsContext';
 
 interface KPI {
@@ -9,8 +9,23 @@ interface KPI {
   gradient: string[];
 }
 
+const INITIAL_SESSIONS_LIMIT = 5;
+const LOAD_MORE_INCREMENT = 5;
+
 export function useDashboard() {
-  const { stats, sessionsOverTime, topicPerformance, recentSessions, loading, error, refreshStats } = useStats();
+  const { stats, sessionsOverTime, topicPerformance, recentSessions: allRecentSessions, loading, error, refreshStats } = useStats();
+  const [sessionsLimit, setSessionsLimit] = useState(INITIAL_SESSIONS_LIMIT);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Slice sessions based on current limit
+  const recentSessions = useMemo(() => {
+    return allRecentSessions.slice(0, sessionsLimit);
+  }, [allRecentSessions, sessionsLimit]);
+
+  // Check if there are more sessions to load
+  const hasMoreSessions = useMemo(() => {
+    return allRecentSessions.length > sessionsLimit;
+  }, [allRecentSessions.length, sessionsLimit]);
 
   // Transform stats into KPI format
   const kpis: KPI[] = useMemo(() => {
@@ -79,13 +94,27 @@ export function useDashboard() {
     ];
   }, [stats]);
 
+  const loadMoreSessions = () => {
+    setLoadingMore(true);
+    setSessionsLimit(prev => prev + LOAD_MORE_INCREMENT);
+    setLoadingMore(false);
+  };
+
+  const resetSessionsLimit = () => {
+    setSessionsLimit(INITIAL_SESSIONS_LIMIT);
+  };
+
   return {
     kpis,
     sessionsOverTime,
     topicPerformance,
     recentSessions,
     loading,
+    loadingMore,
+    hasMoreSessions,
     error,
     refreshStats,
+    loadMoreSessions,
+    resetSessionsLimit,
   };
 }
