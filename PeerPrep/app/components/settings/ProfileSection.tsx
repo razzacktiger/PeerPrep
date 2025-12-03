@@ -79,7 +79,7 @@ export default function ProfileSection({
         // Only show alert if there's an actual error (not just cancellation)
         if (result.error && result.error !== 'Image selection cancelled') {
           // Check if it's a permission error
-          if (result.error.includes('permission')) {
+          if (result.error.toLowerCase().includes('permission')) {
             Alert.alert(
               'Permission Required',
               'PeerPrep needs access to your photo library to upload profile pictures. Please grant permission in your device settings.',
