@@ -96,10 +96,8 @@ export function useDashboard() {
 
   const loadMoreSessions = () => {
     setLoadingMore(true);
-    setTimeout(() => {
-      setSessionsLimit(prev => prev + LOAD_MORE_INCREMENT);
-      setLoadingMore(false);
-    }, 300);
+    setSessionsLimit(prev => prev + LOAD_MORE_INCREMENT);
+    setLoadingMore(false);
   };
 
   const resetSessionsLimit = () => {
