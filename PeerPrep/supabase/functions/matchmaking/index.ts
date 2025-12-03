@@ -41,22 +41,21 @@ serve(async (req: Request) => {
       );
     }
 
-    // Check for waiting users with the same topic (excluding current user)
-    const { data: waitingUsers, error: queueError } = await supabase
+    // ATOMIC CLAIM: Try to claim a waiting partner by updating their status to "matched"
+    // This prevents race conditions where both users create separate sessions
+    const { data: claimedPartner, error: claimError } = await supabase
       .from("matchmaking_queue")
-      .select("id, profile_id, topic_id")
+      .update({ status: "matched" })
       .eq("topic_id", topic_id)
       .eq("status", "waiting")
       .neq("profile_id", user_id)
       .order("created_at", { ascending: true })
-      .limit(1);
+      .limit(1)
+      .select("id, profile_id, topic_id")
+      .single();
 
-    if (queueError) {
-      throw queueError;
-    }
-
-    // If no one is waiting, just return (current user stays in queue)
-    if (!waitingUsers || waitingUsers.length === 0) {
+    // If no partner claimed (no rows updated), keep waiting
+    if (claimError || !claimedPartner) {
       return new Response(
         JSON.stringify({ status: "waiting", message: "No match found yet" }),
         {
@@ -66,8 +65,14 @@ serve(async (req: Request) => {
       );
     }
 
-    // Found a match! Get partner info
-    const partner = waitingUsers[0];
+    // Successfully claimed a partner! Now create the session
+    const partner = claimedPartner;
+
+    // Also mark current user as matched
+    await supabase
+      .from("matchmaking_queue")
+      .update({ status: "matched" })
+      .eq("profile_id", user_id);
 
     // Fetch topic name
     const { data: topic } = await supabase
@@ -94,7 +99,7 @@ serve(async (req: Request) => {
       throw sessionError;
     }
 
-    // Remove both users from queue
+    // Remove both users from queue (cleanup)
     await supabase
       .from("matchmaking_queue")
       .delete()
