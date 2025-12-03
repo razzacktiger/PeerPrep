@@ -36,7 +36,7 @@ export default function DashboardScreen() {
       // No cleanup needed - we only reset on enter, not on exit
       return () => {};
     }, [])
-  );
+  ), [resetSessionsLimit];
 
   if (loading) {
     return (
