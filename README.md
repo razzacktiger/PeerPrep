@@ -1,201 +1,235 @@
-# PeerPrep
-Peer Interview Prep Platform
+# 🎯 PeerPrep
 
-# 📄 CMPE 277 Project Proposal
+> **Collaborative Interview & Study Practice App**  
+> A cross-platform mobile application connecting learners for real-time technical interview practice with AI-powered feedback.
 
-**Project Title:** **PeerPrep – Collaborative Interview & Study Practice App**
-**Team Members:** Haroon Razzack 
-**Course:** CMPE 277 – Mobile Device Development
-
----
-
-## 1. Problem Statement
-
-Preparing for technical interviews and exams can be lonely and inconsistent. Students often lack accountability, structured feedback, or peers to practice with. As a result, they either under-prepare or lose confidence. There is currently no lightweight, mobile-first tool that allows students to easily **pair up, practice, and get immediate feedback** on their performance.
+[![React Native](https://img.shields.io/badge/React_Native-Expo-blue?logo=react)](https://expo.dev/)
+[![Supabase](https://img.shields.io/badge/Backend-Supabase-3ECF8E?logo=supabase)](https://supabase.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-99.4%25-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-View-lightgrey)](./LICENSE)
 
 ---
 
-## 2. Project Scope
+## 📋 Table of Contents
 
-PeerPrep is a **cross-platform mobile app** (Android + iOS) designed to connect learners for **real-time practice sessions**, generate **practice questions**, and provide **instant structured feedback**.
-
-The scope of this project is to:
-
-* Build a **fully functional MVP** that allows authenticated users to select a topic, join a practice queue, get paired with a peer, conduct a timed session, and leave feedback.
-* Integrate a **low-cost AI solution** to generate new practice questions, summarize sessions, and provide rubric-style feedback.
-* Track user streaks and progress over time, encouraging consistent practice habits.
-* Deliver a visually polished and responsive app, with push notifications, real-time pairing, and cloud-synced data.
-
----
-
-## 3. Target Audience
-
-* **Primary:** University students preparing for coding interviews, quizzes, or technical exams.
-* **Secondary:** Early-career developers and job seekers who want structured peer practice.
-
-**Personas:**
-
-* *“Riya, 23”* – A senior CS student who wants to practice behavioral and system design questions before internship interviews.
-* *“Sam, 25”* – A bootcamp grad seeking mock interviews for confidence and accountability.
+- [Problem Statement](#problem-statement)
+- [Solution](#solution)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Documentation](#documentation)
+- [Project Structure](#project-structure)
+- [Contributors](#contributors)
+- [Course Information](#course-information)
+- [License](#license)
 
 ---
 
-## 4. Key Features (Prioritized)
+<a id="problem-statement"></a>
 
-### **MVP (Must Have – Weeks 1–4)**
+## 🎯 Problem Statement
 
-* 🔐 **Authentication & Profiles** (Supabase Auth)
-* 📚 **Topic Selection & Instant Pairing** (Edge Function matchmaking)
-* ⏱ **Session Room:** Timer + question display + optional recording toggle (audio/video)
-* 💬 **Peer Feedback:** Quick rubric rating and notes
-* 🤖 **AI Cross-Check:** AI reviews session transcript (if recording enabled) and provides a secondary rating + short summary to mitigate trolling or unfair peer ratings.
-* 🔔 **Push Notifications:** Session ready, reminders
-* 📊 **Dashboard:** Track completed sessions, streaks, and average feedback scores
+Preparing for technical interviews and exams can be **lonely and inconsistent**. Students often lack:
 
-### **Session Flow Example**
+- 👥 Accountability partners
+- 📝 Structured feedback
+- 🤝 Peers to practice with
 
-1. **Topic Selection:** User picks a topic (e.g., Data Structures) and joins queue.
-2. **Instant Pairing:** Edge Function matches two users waiting for the same topic.
-3. **Session Room:** Displays countdown timer, first question, and optional note-taking area. Users alternate answering questions or discussing solutions, optionally enabling voice/video call.
-4. **Recording & AI Feedback (Optional):** If users consent, audio is recorded and transcribed for AI to generate a fairness score, predicted rubric, and brief explanation.
-5. **Peer Feedback:** At session end, both participants rate each other with a rubric (clarity, correctness, confidence) and can leave notes.
-6. **Dashboard Update:** Streaks, AI feedback, and scores update for both users.
-
-### **Phase 2 (Nice to Have – Weeks 5–6)**
-
-* 🤖 **AI Question Generation:** Use Groq/Gemini API to generate or vary questions on-demand
-* 📝 **AI Rubric Feedback & Session Summary:** Actionable suggestions in <1s
-* 🏆 **Leaderboard / Consistency Streaks:** Gamify practice
-
-### **Stretch Goals (Weeks 7–8 if ahead of schedule)**
-
-* 📅 **Scheduling:** Book a session in advance
-* 🎥 **Video/Voice Integration:** Full-featured LiveKit or Google Meet integration with mute/unmute controls
-* 📤 **Session Export:** Email or save notes, ratings, and AI summary for later review
+As a result, they either under-prepare or lose confidence. There is currently no lightweight, mobile-first tool that allows students to easily **pair up, practice, and get immediate feedback** on their performance.
 
 ---
 
-## 5. Technology Stack & Architecture
+<a id="solution"></a>
 
-### **Frontend (Mobile)**
+## 💡 Solution
 
-* **React Native + Expo (TypeScript)** – cross-platform development
-* **Expo Router** – navigation
-* **Zustand** – lightweight state management
-* **TanStack Query** – server cache & sync
-* **React Native Paper** – Material Design components
-* **Expo Notifications** – push notifications
+**PeerPrep** is a cross-platform mobile app (Android + iOS) designed to:
 
-### **Backend**
-
-* **Supabase** – Postgres + Realtime + Auth + Storage
-* **Edge Functions (Deno)** – pairing queue, session creation, leaderboard calculation
-* **Row-Level Security** – ensure users can only access their data
-
-### **AI Integration**
-
-* **Groq (Llama 3.1 8B)** – primary (low-cost, fast inference \~\$0.001/session)
-* **Gemini 2.5 Flash Lite** – backup (low-latency, cheap inference)
-* **Whisper API or Open-Source Transcriber** – for optional audio transcription
-* **Caching** – store generated questions to minimize token usage and costs
-
-### **DevOps & QA**
-
-* **GitHub + Conventional Commits** – version control & clean history
-* **GitHub Actions + Expo EAS** – CI/CD and preview builds
-* **Sentry** – crash reporting
-* **PostHog** – basic usage analytics
+1. **Connect learners** for real-time practice sessions
+2. **Generate practice questions** using AI
+3. **Provide instant structured feedback** through peer ratings and AI analysis
+4. **Track progress** with streaks, scores, and session history
 
 ---
 
-## 6. System Architecture (High-Level)
+<a id="key-features"></a>
 
-```text
-+----------------+           +---------------------+
-|  React Native  | <-------> | Supabase REST / RT  |
-|  (Expo Client) |           | + Edge Functions    |
-+-------+--------+           +-----+---------------+
-        |                          |
-        |        AI Calls          |
-        +------------------------->+ Groq/Gemini API (Q Generation, Scoring)
-                                   + Whisper (Transcription)
+## ✨ Key Features
+
+| Feature                                  | Description                                                      |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| 🔐 **Authentication**                    | Secure sign-up/login via Supabase Auth                           |
+| 📚 **Topic Selection**                   | Choose from Data Structures, Algorithms, System Design, and more |
+| ⚡ **Instant Matching**                  | Real-time peer pairing via Edge Functions                        |
+| ⏱️ **Session Room**                      | Timed practice with shared code editor and notes                 |
+| 💬 **Real-time Chat**                    | In-session messaging with peers                                  |
+| 🤖 **AI Feedback (Future WIP)**          | AI-generated question generation and feedback                    |
+| ⭐ **Peer Reviews**                      | Rate partners on clarity, correctness, and confidence            |
+| 📊 **Progress Dashboard**                | Track sessions, streaks, and average scores                      |
+| 🔔 **Push Notifications (Release Soon)** | Session reminders and match alerts                               |
+
+---
+
+<a id="tech-stack"></a>
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- **React Native + Expo** — Cross-platform mobile development
+- **Expo Router** — File-based navigation
+- **TypeScript** — Type safety throughout
+- **Zustand** — Lightweight state management
+- **React Native Paper** — Material Design components
+
+### Backend
+
+- **Supabase** — PostgreSQL + Realtime + Auth + Storage
+- **Edge Functions (Deno)** — Serverless matchmaking logic
+- **Row-Level Security** — Fine-grained data access control
+
+### AI Integration (Future Work in Progress)
+
+- **Groq / Gemini API** — Question generation and feedback
+- **Whisper** — Audio transcription (optional)
+
+---
+
+<a id="quick-start"></a>
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18.x or 20.x
+- npm 9.x+
+- Expo CLI
+- Supabase account
+
+### Clone & Install
+
+```bash
+# Clone the repository
+git clone https://github.com/razzacktiger/PeerPrep.git
+cd PeerPrep/PeerPrep
+
+# Install dependencies
+npm install
+
+# Set up environment variables (see BUILD_INSTRUCTIONS.md)
+cp .env.example .env
+
+# Start development server
+npm start
 ```
 
-* Frontend communicates with Supabase for auth, matchmaking, and data persistence.
-* Supabase Edge Functions handle pairing logic and enforce security rules.
-* AI API is called only when needed (question generation, feedback, transcript scoring), with results cached in the DB.
+> 📖 **For complete setup instructions including Supabase configuration**, see **[BUILD_INSTRUCTIONS.md](./BUILD_INSTRUCTIONS.md)**
 
 ---
 
-## 6.1 Recording & Transcription Architecture (Optional)
+<a id="documentation"></a>
 
-**Goal:** Provide fair, secondary AI scoring while keeping costs and privacy under control.
+## 📚 Documentation
 
-**Flow:**
+| Document                                                                                    | Description                                        |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| 📘 [**BUILD_INSTRUCTIONS.md**](./BUILD_INSTRUCTIONS.md)                                     | Complete setup guide for developers and evaluators |
+| 📁 [**setup/**](./setup/)                                                                   | SQL scripts for Supabase database setup            |
+| 📋 [**PROJECT_OBJECTIVES.md**](./PROJECT_OBJECTIVES.md)                                     | Original project proposal and objectives           |
+| 🎨 [**Platform-Specific Design Standards.md**](./Platform-Specific%20Design%20Standards.md) | iOS & Android design guidelines                    |
+| 🔬 [**UX Research - PeerPrep.md**](./UX%20Research%20-%20PeerPrep.md)                       | User personas and journey maps                     |
+| 📝 [**PLANNING.md**](./PLANNING.md)                                                         | Architecture and technical planning                |
+| ➡️ [**NEXT_STEPS.md**](./NEXT_STEPS.md)                                                     | Future development roadmap                         |
 
-1. **Consent & Toggle:** Users explicitly opt-in to recording inside the Session Room.
-2. **Local Capture (Audio-Only for MVP):** Record WebM/Opus, hard-cap ≤15 minutes and show remaining time.
-3. **Upload to Storage:** Client uploads directly to Supabase Storage (private bucket) using a signed URL.
-4. **Transcription Job:** Edge Function/worker pulls file via signed URL → runs Whisper → saves transcript to Postgres.
-5. **AI Fairness Check:** Pass transcript and rubric to Groq/Gemini → get predicted rubric scores, rationale, confidence.
-6. **Persist Minimal Data:** Store only transcript + AI scores, auto-delete raw audio after 7–14 days.
-7. **Access Control:** Private bucket with signed URLs, RLS on transcript rows.
+### Setup Files Reference
 
-**Cost & Privacy Notes:**
+The `setup/` folder contains SQL scripts to configure your own Supabase backend:
 
-* Audio-only keeps files small (\~1–2 MB/min) and cost low.
-* Add per-user quotas and daily AI credit caps.
-* Display clear consent text and allow user-initiated deletion.
-
-**If Video Later:** Use LiveKit for real-time A/V and S3/R2 for cloud recording output, storing only transcripts + scores in Supabase.
-
----
-
-## 7. Project Timeline (10 Weeks)
-
-| **Week** | **Milestones**                                                |
-| -------- | ------------------------------------------------------------- |
-| 1        | Wireframes, personas, DB schema design, Supabase setup        |
-| 2        | Auth & topic selection screen, Edge Function stubs            |
-| 3        | Session room UI + timer, pairing queue integration            |
-| 4        | Peer + AI feedback integration, dashboard, push notifications |
-| 5        | AI question generation & caching, transcription tuning        |
-| 6        | Leaderboards, streak animations, polish & bug fixing          |
-| 7        | Optional scheduling + export                                  |
-| 8        | UI/UX refinements, testing, screenshots, final docs           |
-| 9        | Demo prep, dry run with sample users                          |
-| 10       | Final presentation & submission                               |
+```
+setup/
+├── README.md                   # Setup folder guide
+├── 01_schema.sql              # Database tables & enums
+├── 02_rls_policies.sql        # Row-Level Security policies
+├── 03_triggers.sql            # Auto profile creation trigger
+├── 04_seed_topics.sql         # Initial practice topics
+├── 05_session_messages.sql    # Chat functionality
+└── 06_realtime_columns.sql    # Real-time collaboration columns
+```
 
 ---
 
-## 8. Team Roles (3 Developers)
+<a id="project-structure"></a>
 
-| **Role**      | **Dev A**                                         | **Dev B**                                                | **Dev C**                                         |
-| ------------- | ------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------- |
-| **Focus**     | Mobile UI/UX                                      | Backend & Realtime                                       | AI + DevOps                                       |
-| **Key Tasks** | Auth flow, session UI, dashboard, notifications   | Supabase schema, Edge Functions, pairing logic, security | AI prompts, transcription, CI/CD, cost monitoring |
-| **Shared**    | Wireframing, testing, documentation, presentation |                                                          |                                                   |
+## 📁 Project Structure
+
+```
+PeerPrep/
+├── PeerPrep/                  # React Native Expo App
+│   ├── app/                   # Expo Router screens
+│   │   ├── (app)/            # Authenticated routes
+│   │   ├── (auth)/           # Login/signup screens
+│   │   └── _layout.tsx       # Root layout
+│   ├── components/           # Reusable UI components
+│   ├── lib/                  # Core libraries
+│   │   ├── api/              # API functions
+│   │   ├── hooks/            # Custom React hooks
+│   │   └── supabase.ts       # Supabase client config
+│   ├── stores/               # Zustand state stores
+│   └── supabase/functions/   # Edge Functions
+│       └── matchmaking/      # Peer matching logic
+├── setup/                    # SQL setup scripts
+├── BUILD_INSTRUCTIONS.md     # Developer setup guide
+├── PROJECT_OBJECTIVES.md     # Project proposal
+└── README.md                 # This file
+```
 
 ---
 
-## 9. Risks & Mitigation
+<a id="contributors"></a>
 
-| **Risk**                         | **Mitigation**                                                                |
-| -------------------------------- | ----------------------------------------------------------------------------- |
-| AI costs grow unexpectedly       | Use caching, free-tier credits, fallback to pre-written Q-bank                |
-| Scheduling conflicts             | Keep sprints small, communicate weekly progress, async standups               |
-| Scope creep                      | Freeze MVP after week 4, prioritize polish & stability before adding features |
-| Privacy concerns with recordings | Make recording optional and encrypted, get user consent before starting       |
+## 👥 Contributors
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/razzacktiger">
+        <img src="https://github.com/razzacktiger.png" width="100px;" alt="Haroon Razzack"/><br />
+        <sub><b>Haroon Razzack</b></sub>
+      </a><br />
+      <sub>Project Lead</sub>
+    </td>
+  </tr>
+</table>
+
+> See all contributors on [GitHub Contributors Page](https://github.com/razzacktiger/PeerPrep/graphs/contributors)
 
 ---
 
-## 10. Expected Outcome
+<a id="course-information"></a>
 
-* **Deliverable:** Fully functional mobile app + source code repo + README/build instructions
-* **Learning Outcomes:**
+## 🎓 Course Information
 
-  * End-to-end mobile development with React Native & cloud backend
-  * Secure, scalable real-time pairing logic
-  * Practical AI integration with cost-awareness and fairness checks
-  * Deployment, testing, and collaboration in a professional workflow
+|                  |                                      |
+| ---------------- | ------------------------------------ |
+| **Course**       | CMPE 277 — Mobile Device Development |
+| **University**   | San José State University            |
+| **Semester**     | Fall 2025                            |
+| **Project Type** | Team Project                         |
 
+---
+
+<a id="license"></a>
+
+## 📄 License
+
+This project is licensed under the terms specified in the [LICENSE](./LICENSE) file.
+
+---
+
+<div align="center">
+
+**Built with ❤️ for CMPE 277**
+
+[⬆ Back to Top](#-peerprep)
+
+</div>
